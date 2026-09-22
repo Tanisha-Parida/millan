@@ -1,0 +1,352 @@
+@import "tailwindcss";
+
+@theme {
+  --color-obsidian: #060709;
+  --color-terracotta: #C85A32;
+  --color-silkGold: #D4AF37;
+  --color-ivorySand: #FAF7F2;
+  --color-sage: #2D5A43;
+  --color-clay: #A85A38;
+  
+  --font-serif: "Cinzel", "Cormorant Garamond", Georgia, serif;
+  --font-cormorant: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-display: "Archivo Black", "Cinzel", sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+  --bg-obsidian: #060709;
+  --color-gold: #D4AF37;
+  --color-gold-glow: rgba(212, 175, 55, 0.25);
+  --color-terracotta: #C85A32;
+  --color-ivory: #FAF7F2;
+}
+
+/* Base resets & typography */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: #060709;
+  color: #FAF7F2;
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #060709;
+  color: #FAF7F2;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #060709;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2012;
+  border-radius: 9999px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37;
+}
+
+/* Luxury Utilities */
+.font-serif-luxury {
+  font-family: "Cormorant Garamond", Georgia, serif;
+}
+
+.font-cinzel {
+  font-family: "Cinzel", Georgia, serif;
+}
+
+.font-telemetry {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #FFF9EB 0%, #E8C86A 35%, #D4AF37 70%, #9B761E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-foil-border {
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.08);
+}
+
+.gold-foil-border:hover {
+  border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
+}
+
+.obsidian-glass {
+  background: rgba(10, 12, 18, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.obsidian-glass-heavy {
+  background: rgba(6, 7, 9, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.ambient-glow-gold {
+  box-shadow: 0 0 45px rgba(212, 175, 55, 0.16);
+}
+
+.ambient-glow-terracotta {
+  box-shadow: 0 0 45px rgba(200, 90, 50, 0.2);
+}
+
+/* 3D perspective utilities */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-1500 {
+  perspective: 1500px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* Noise texture overlay */
+.bg-noise {
+  background-image: radial-gradient(rgba(212, 175, 55, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Scanline / HUD grid line */
+.hud-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(212, 175, 55, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(212, 175, 55, 0.04) 1px, transparent 1px);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.04); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+@keyframes slowSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-slow-spin {
+  animation: slowSpin 90s linear infinite;
+}
+
+/* ========================================================= */
+/* ROYAL HAVELI DARWAZA 3D SCROLL REVEAL (USER SPECIFICATION)*/
+/* ========================================================= */
+
+/* Creates the scroll track height (300vh to 350vh) */
+.scroll-container {
+  height: 320vh;
+  position: relative;
+}
+
+.sticky-viewport {
+  position: sticky;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px; /* Crucial for realistic 3D depth */
+  background: #080604;
+}
+
+.door-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+/* Constrained 16:9 portal container preventing viewport overflow */
+.portal-stage {
+  position: relative;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: min(100vw, 177.78vh);
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1300px;
+  transform-style: preserve-3d;
+}
+
+.door-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+/* Layer 3 (Front): Static stone arch frame & pillars foreground */
+.frame-layer,
+.outer-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Layer 2 (Middle): Clean proportional positioning matching arch doorway */
+.doors-stage,
+.doors-wrapper {
+  position: absolute;
+  left: 29.10156%;
+  top: 7.118%;
+  width: 41.0156%;
+  height: 77.257%;
+  z-index: 5;
+  display: flex;
+  transform-style: preserve-3d;
+}
+
+.door {
+  position: absolute;
+  top: 0;
+  width: 50.15%;
+  height: 100%;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Revert hinges to clean outer edge rotation */
+.door-left {
+  left: 0;
+  transform-origin: left center;
+  transform: rotateY(0deg);
+  transition: transform 0.1s linear;
+}
+
+.door-right {
+  right: 0;
+  transform-origin: right center;
+  transform: rotateY(0deg);
+  transition: transform 0.1s linear;
+}
+
+.door img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+  pointer-events: none;
+  transition: filter 0.1s linear;
+}
+
+.interior-content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fixed/absolute 2D HUD layer above stage, free from 3D scale transforms */
+.hero-overlay-ui {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0 clamp(24px, 5vw, 64px);
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.hero-left-block {
+  position: absolute;
+  left: clamp(16px, 4vw, 48px);
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: clamp(280px, 24vw, 380px);
+  pointer-events: auto;
+  z-index: 25;
+}
+
+.hero-right-block {
+  position: absolute;
+  right: clamp(16px, 4vw, 48px);
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: clamp(280px, 24vw, 380px);
+  pointer-events: auto;
+  text-align: right;
+  z-index: 25;
+}
+
+.hero-heading-clamp {
+  font-size: clamp(2.2rem, 3.8vw, 4.2rem);
+  line-height: 1.05;
+}
+
+.hero-text-clamp {
+  font-size: clamp(0.8rem, 0.95vw, 1rem);
+}
+
+.hero-explore-btn-wrap {
+  position: absolute;
+  bottom: clamp(24px, 4vh, 40px);
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  z-index: 30;
+}
+
