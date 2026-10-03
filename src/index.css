@@ -1,173 +1,109 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-obsidian: #060709;
-  --color-terracotta: #C85A32;
-  --color-silkGold: #D4AF37;
-  --color-ivorySand: #FAF7F2;
-  --color-sage: #2D5A43;
-  --color-clay: #A85A38;
-  
-  --font-serif: "Cinzel", "Cormorant Garamond", Georgia, serif;
-  --font-cormorant: "Cormorant Garamond", Georgia, serif;
-  --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
-  --font-display: "Archivo Black", "Cinzel", sans-serif;
+  /* Natural dye palette */
+  --color-khadi: #EDE4D3;
+  --color-indigo: #1F2A5A;
+  --color-madder: #B23A2E;
+  --color-haldi: #E3A71F;
+  --color-neem: #4C5A2E;
+  --color-kiln: #6B3414;
+
+  /* Surfaces */
+  --color-hero-dark: #0c0907;
+  --color-cream: #F5F0E6;
+
+  /* Typography — two families only */
+  --font-display: 'Rozha One', Georgia, serif;
+  --font-body: 'Mukta', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Mukta', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Accessible minimums */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.375rem;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.7rem;
+
+  --animate-slide-in-right: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-:root {
-  color-scheme: dark;
-  --bg-obsidian: #060709;
-  --color-gold: #D4AF37;
-  --color-gold-glow: rgba(212, 175, 55, 0.25);
-  --color-terracotta: #C85A32;
-  --color-ivory: #FAF7F2;
-}
+/* ─── Base resets ─────────────────────────────────────────── */
 
-/* Base resets & typography */
 * {
   box-sizing: border-box;
 }
 
 html {
-  background-color: #060709;
-  color: #FAF7F2;
+  background-color: #EDE4D3;
+  color: #1F2A5A;
   scroll-behavior: auto;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #060709;
-  color: #FAF7F2;
-  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--color-khadi);
+  color: var(--color-indigo);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Scrollbar */
+/* ─── Scrollbar ───────────────────────────────────────────── */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #060709;
+  background: var(--color-khadi);
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2012;
+  background: var(--color-kiln);
   border-radius: 9999px;
-  border: 1px solid rgba(212, 175, 55, 0.2);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #D4AF37;
+  background: var(--color-madder);
 }
 
-/* Luxury Utilities */
-.font-serif-luxury {
-  font-family: "Cormorant Garamond", Georgia, serif;
+/* ─── Paper grain texture (khadi background) ──────────────── */
+
+.paper-grain::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.035;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") repeat;
 }
 
-.font-cinzel {
-  font-family: "Cinzel", Georgia, serif;
+/* ─── Toast slide-in ──────────────────────────────────────── */
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(110%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-.font-telemetry {
-  font-family: "JetBrains Mono", monospace;
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.gold-gradient-text {
-  background: linear-gradient(135deg, #FFF9EB 0%, #E8C86A 35%, #D4AF37 70%, #9B761E 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+/* ═══════════════════════════════════════════════════════════ */
+/* DARWAZA 3D SCROLL REVEAL (hero only — dark background)     */
+/* ═══════════════════════════════════════════════════════════ */
 
-.gold-foil-border {
-  border: 1px solid rgba(212, 175, 55, 0.28);
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.08);
-}
-
-.gold-foil-border:hover {
-  border-color: rgba(212, 175, 55, 0.6);
-  box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
-}
-
-.obsidian-glass {
-  background: rgba(10, 12, 18, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(212, 175, 55, 0.15);
-}
-
-.obsidian-glass-heavy {
-  background: rgba(6, 7, 9, 0.92);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-}
-
-.ambient-glow-gold {
-  box-shadow: 0 0 45px rgba(212, 175, 55, 0.16);
-}
-
-.ambient-glow-terracotta {
-  box-shadow: 0 0 45px rgba(200, 90, 50, 0.2);
-}
-
-/* 3D perspective utilities */
-.perspective-1000 {
-  perspective: 1000px;
-}
-
-.perspective-1500 {
-  perspective: 1500px;
-}
-
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-
-.backface-hidden {
-  backface-visibility: hidden;
-}
-
-/* Noise texture overlay */
-.bg-noise {
-  background-image: radial-gradient(rgba(212, 175, 55, 0.06) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* Scanline / HUD grid line */
-.hud-grid {
-  background-size: 40px 40px;
-  background-image: 
-    linear-gradient(to right, rgba(212, 175, 55, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(212, 175, 55, 0.04) 1px, transparent 1px);
-}
-
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.04); }
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 4s ease-in-out infinite;
-}
-
-@keyframes slowSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-slow-spin {
-  animation: slowSpin 90s linear infinite;
-}
-
-/* ========================================================= */
-/* ROYAL HAVELI DARWAZA 3D SCROLL REVEAL (USER SPECIFICATION)*/
-/* ========================================================= */
-
-/* Creates the scroll track height (300vh to 350vh) */
 .scroll-container {
   height: 320vh;
   position: relative;
@@ -182,8 +118,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  perspective: 1200px; /* Crucial for realistic 3D depth */
-  background: #080604;
+  perspective: 1200px;
+  background: #0c0907;
 }
 
 .door-frame {
@@ -194,12 +130,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
-  pointer-events: none;
   transform-style: preserve-3d;
+  pointer-events: none;
 }
 
-/* Constrained 16:9 portal container preventing viewport overflow */
 .portal-stage {
   position: relative;
   max-width: 100vw;
@@ -215,19 +149,6 @@ body {
   transform-style: preserve-3d;
 }
 
-.door-frame {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 16 / 9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform-style: preserve-3d;
-  pointer-events: none;
-}
-
-/* Layer 3 (Front): Static stone arch frame & pillars foreground */
 .frame-layer,
 .outer-frame {
   position: absolute;
@@ -239,7 +160,6 @@ body {
   pointer-events: none;
 }
 
-/* Layer 2 (Middle): Clean proportional positioning matching arch doorway */
 .doors-stage,
 .doors-wrapper {
   position: absolute;
@@ -262,19 +182,14 @@ body {
   will-change: transform;
 }
 
-/* Revert hinges to clean outer edge rotation */
 .door-left {
   left: 0;
   transform-origin: left center;
-  transform: rotateY(0deg);
-  transition: transform 0.1s linear;
 }
 
 .door-right {
   right: 0;
   transform-origin: right center;
-  transform: rotateY(0deg);
-  transition: transform 0.1s linear;
 }
 
 .door img {
@@ -283,7 +198,6 @@ body {
   object-fit: fill;
   display: block;
   pointer-events: none;
-  transition: filter 0.1s linear;
 }
 
 .interior-content {
@@ -296,7 +210,6 @@ body {
   justify-content: center;
 }
 
-/* Fixed/absolute 2D HUD layer above stage, free from 3D scale transforms */
 .hero-overlay-ui {
   position: absolute;
   inset: 0;
@@ -316,7 +229,7 @@ body {
   left: clamp(16px, 4vw, 48px);
   top: 50%;
   transform: translateY(-50%);
-  max-width: clamp(280px, 24vw, 380px);
+  max-width: clamp(280px, 28vw, 480px);
   pointer-events: auto;
   z-index: 25;
 }
@@ -333,12 +246,13 @@ body {
 }
 
 .hero-heading-clamp {
-  font-size: clamp(2.2rem, 3.8vw, 4.2rem);
-  line-height: 1.05;
+  font-size: clamp(2rem, 3.5vw, 3.5rem);
+  line-height: 1.15;
 }
 
 .hero-text-clamp {
-  font-size: clamp(0.8rem, 0.95vw, 1rem);
+  font-size: clamp(0.9375rem, 1vw, 1.125rem);
+  line-height: 1.6;
 }
 
 .hero-explore-btn-wrap {
@@ -350,3 +264,97 @@ body {
   z-index: 30;
 }
 
+/* ─── Hero editorial scrims ──────────────────────────────── */
+
+.hero-editorial-text {
+  isolation: isolate;
+}
+
+.hero-editorial-text::before {
+  content: '';
+  position: absolute;
+  inset: -2.5rem -3rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse closest-side at 40% 50%,
+    rgba(12, 9, 7, 0.82) 0%,
+    rgba(12, 9, 7, 0.6) 55%,
+    rgba(12, 9, 7, 0) 100%
+  );
+  filter: blur(4px);
+}
+
+@media (max-width: 640px) {
+  .hero-editorial-text::before {
+    inset: -1.5rem -1.25rem;
+  }
+}
+
+/* ─── Lenis smooth scroll ────────────────────────────────── */
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ─── 3D utilities (hero only) ───────────────────────────── */
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* ─── Accessibility: reduced motion ──────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .scroll-container {
+    height: 100vh !important;
+  }
+
+  .door-left,
+  .door-right {
+    display: none;
+  }
+
+  .sticky-viewport {
+    perspective: none;
+  }
+}
+
+/* ─── Focus rings ────────────────────────────────────────── */
+
+:focus-visible,
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-madder) !important;
+  outline-offset: 3px !important;
+}

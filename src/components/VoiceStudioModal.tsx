@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import {
   Mic,
   MicOff,
@@ -11,113 +11,16 @@ import {
   ShieldCheck,
   Globe,
 } from 'lucide-react';
-import type { CraftItem } from './ArtisanVaultGrid';
+import type { CraftItem } from '../types/craft';
+import { formatPrice } from '../lib/currency';
+import { useModalA11y } from '../hooks/useModalA11y';
+import { DIALECT_PRESETS, type DialectPreset } from '../data/dialectPresets';
 
 interface VoiceStudioModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPublishListing?: (newItem: CraftItem) => void;
 }
-
-interface DialectPreset {
-  id: string;
-  name: string;
-  nativeLabel: string;
-  artisanName: string;
-  village: string;
-  craftType: string;
-  speechAudioText: string;
-  englishTranslation: string;
-  hours: number;
-  rawCostINR: number;
-  fairHourlyWage: number;
-  pohhScore: number;
-  previewImage: string;
-  hsnCode: string;
-}
-
-const DIALECT_PRESETS: DialectPreset[] = [
-  {
-    id: 'odia',
-    name: 'Odia (Sambalpuri)',
-    nativeLabel: 'ଓଡ଼ିଆ (ସମ୍ବଲପୁରୀ)',
-    artisanName: 'Bipra Charan Baghel',
-    village: 'Bastar Border / Barpali',
-    craftType: 'Dhokra Brass Tribal Figurine',
-    speechAudioText: 'ମୋର ଏଇ ଢୋକ୍ରା ପିତ୍ତଳ ମୂର୍ତ୍ତି କୁ ୬ ଘଣ୍ଟା ଲାଗିଲା, କଞ୍ଚା ମାଲ ୨୨୦ ଟଙ୍କା ପଡ଼ିଲା। ଜଙ୍ଗଲ ମହୁଫେଣା ର ମହମ ରେ ଗଢ଼ିଛି।',
-    englishTranslation: 'This Dhokra brass figurine took 6 hours of lost-wax sculpting. Raw materials cost ₹220. Coaxed from wild forest beeswax before molten brass casting.',
-    hours: 6,
-    rawCostINR: 220,
-    fairHourlyWage: 190,
-    pohhScore: 98.6,
-    previewImage: '/images/dhokra.jpg',
-    hsnCode: '9703.00.10',
-  },
-  {
-    id: 'hindi',
-    name: 'Hindi (Awadhi)',
-    nativeLabel: 'हिन्दी (अवधी)',
-    artisanName: 'Ram Kinkar Prajapati',
-    village: 'Nizamabad, Azamgarh',
-    craftType: 'Engraved Black Luster Urn',
-    speechAudioText: 'यह घड़ा हमने चाक पर घुमाकर हाथ से तराशा है। 8 घंटे की मेहनत है, माटी और तेल का खर्च 180 रुपया आया है।',
-    englishTranslation: 'Hand-thrown on the kick-wheel and etched with silver slip jaali motifs. Took 8 hours of labor, river clay and mustard oil cost ₹180.',
-    hours: 8,
-    rawCostINR: 180,
-    fairHourlyWage: 185,
-    pohhScore: 99.1,
-    previewImage: '/images/pottery.jpg',
-    hsnCode: '6913.90.00',
-  },
-  {
-    id: 'bengali',
-    name: 'Bengali (Rarh)',
-    nativeLabel: 'বাংলা (বীরভূম)',
-    artisanName: 'Bimalendu Chitrakar',
-    village: 'Pingla, West Bengal',
-    craftType: 'Patachitra Natural Dye Scroll',
-    speechAudioText: 'এই পটচিত্র আঁকতে ৭ ঘণ্টা লেগেছে। বেলপাতা, কাঁচা হলুদ আর অপরাজিতা ফুলের রস দিয়ে রং তৈরি করেছি। খরচ ১৫০ টাকা।',
-    englishTranslation: 'Painting this mythological scroll took 7 hours. All mineral dyes were pressed by hand from wood-apple leaves, raw turmeric, and blue pea blossoms. Cost ₹150.',
-    hours: 7,
-    rawCostINR: 150,
-    fairHourlyWage: 200,
-    pohhScore: 98.8,
-    previewImage: '/images/madhubani.jpg',
-    hsnCode: '9701.10.20',
-  },
-  {
-    id: 'santhali',
-    name: 'Santhali / Tribal',
-    nativeLabel: 'ᱥᱟᱱᱛᱟᱲᱤ (Ol Chiki)',
-    artisanName: 'Karan Soren',
-    village: 'Mayurbhanj, Odisha',
-    craftType: 'Sabai Grass Braided Storage Basket',
-    speechAudioText: 'ᱱᱚᱣᱟ ᱥᱟᱵᱟᱭ ᱜᱷᱟᱥ ᱴᱩᱠᱨᱤ ᱵᱮᱱᱟᱣ ᱞᱟᱹᱜᱤᱫ ᱕ ᱴᱟᱲᱟᱝ ᱞᱟᱜᱟᱣ ᱮᱱᱟ᱾ ᱠᱟᱸᱪᱟ ᱢᱟᱞ ᱑᱒᱐ ᱴᱟᱠᱟ ᱯᱟᱲᱟᱣ ᱮᱱᱟ᱾',
-    englishTranslation: 'Woven from wild forest Sabai grass, sun-dried and coiled without nails. 5 hours of continuous knotting, raw grass gathered from Mayurbhanj hill tracts for ₹120.',
-    hours: 5,
-    rawCostINR: 120,
-    fairHourlyWage: 175,
-    pohhScore: 99.4,
-    previewImage: '/images/bamboo.jpg',
-    hsnCode: '4602.19.11',
-  },
-  {
-    id: 'english',
-    name: 'English (Voice Assist)',
-    nativeLabel: 'English (Direct Audio)',
-    artisanName: 'Ananya Meher',
-    village: 'Sambalpur Silk Guild',
-    craftType: 'Sambalpuri Ikat Wall Textile',
-    speechAudioText: 'I hand-tied and dip-dyed 1,400 silk threads before putting this on our pit loom. It took 12 hours of weaving, raw silk cost was ₹650.',
-    englishTranslation: 'Hand-tied and dip-dyed 1,400 silk threads before putting this on our pit loom. It took 12 hours of weaving, raw silk cost was ₹650.',
-    hours: 12,
-    rawCostINR: 650,
-    fairHourlyWage: 220,
-    pohhScore: 99.2,
-    previewImage: '/images/ikat.jpg',
-    hsnCode: '5007.20.10',
-  },
-];
 
 export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
   isOpen,
@@ -130,17 +33,19 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
   const [hasProcessed, setHasProcessed] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
+  const [copiedJson, setCopiedJson] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const panelRef = useModalA11y(isOpen, onClose);
 
-  // Audio frequency waveform canvas visualizer
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let animationId: number;
     let phase = 0;
 
@@ -155,7 +60,6 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
       phase += 0.08;
 
       for (let i = 0; i < bars; i++) {
-        // Amplitude based on whether recording or idle
         const baseAmp = isRecording ? Math.sin(phase + i * 0.4) * 0.5 + 0.5 : 0.15;
         const noise = isRecording ? Math.random() * 0.35 : 0.05;
         const totalAmp = Math.min(1, baseAmp + noise);
@@ -164,23 +68,15 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
         const x = i * (barWidth + 2);
         const y = (height - barHeight) / 2;
 
-        const grad = ctx.createLinearGradient(0, y, 0, y + barHeight);
-        if (isRecording) {
-          grad.addColorStop(0, '#FAF7F2');
-          grad.addColorStop(0.5, '#D4AF37');
-          grad.addColorStop(1, '#C85A32');
-        } else {
-          grad.addColorStop(0, 'rgba(212, 175, 55, 0.4)');
-          grad.addColorStop(1, 'rgba(200, 90, 50, 0.2)');
-        }
-
-        ctx.fillStyle = grad;
+        ctx.fillStyle = isRecording ? '#B23A2E' : '#6B3414';
         ctx.beginPath();
-        ctx.roundRect(x, y, barWidth, barHeight, 3);
+        ctx.rect(x, y, barWidth, barHeight);
         ctx.fill();
       }
 
-      animationId = requestAnimationFrame(renderWave);
+      if (!prefersReducedMotion) {
+        animationId = requestAnimationFrame(renderWave);
+      }
     };
 
     renderWave();
@@ -190,7 +86,12 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
     };
   }, [isRecording]);
 
-  // Handle Recording simulation
+  useEffect(() => {
+    if (!copiedJson) return;
+    const t = setTimeout(() => setCopiedJson(false), 2000);
+    return () => clearTimeout(t);
+  }, [copiedJson]);
+
   const startRecording = () => {
     setIsRecording(true);
     setHasProcessed(false);
@@ -217,14 +118,10 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
     }, 700);
   };
 
-  // Cost-Plus Fair Living Wage Calculation:
-  // Total = Raw Material + (Hours * Fair Living Wage) + (25% GI Skill & Preservation Premium)
   const laborCost = selectedDialect.hours * selectedDialect.fairHourlyWage;
   const premiumSkill = Math.round((selectedDialect.rawCostINR + laborCost) * 0.22);
   const fairListingPriceINR = selectedDialect.rawCostINR + laborCost + premiumSkill;
-  const fairListingPriceUSD = Math.round(fairListingPriceINR / 83);
 
-  // Generated Beckn v2 JSON Payload
   const generatedBecknPayload = {
     context: {
       domain: 'nic2004:9703',
@@ -237,7 +134,7 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
     message: {
       catalog: {
         'bpp/descriptor': {
-          name: `${selectedDialect.artisanName} Sovereign Studio`,
+          name: `${selectedDialect.artisanName}'s Studio`,
           tags: [{ code: 'gi_lineage', value: selectedDialect.village }],
         },
         'bpp/providers': [
@@ -246,11 +143,10 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
             descriptor: { name: selectedDialect.artisanName },
             items: [
               {
-                id: `ITEM-${Date.now().toString().slice(-6)}`,
+                id: `ITEM-${selectedDialect.id.toUpperCase()}-01`,
                 descriptor: {
                   name: selectedDialect.craftType,
                   long_desc: selectedDialect.englishTranslation,
-                  pohh_authenticity_score: `${selectedDialect.pohhScore}%`,
                   hsn_code: selectedDialect.hsnCode,
                 },
                 price: {
@@ -277,10 +173,10 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
       setIsPublished(true);
 
       const newItem: CraftItem = {
-        id: `VLT-${Date.now().toString().slice(-6)}`,
+        id: `CRAFTS-${Date.now().toString().slice(-6)}`,
         title: selectedDialect.craftType,
         category: 'Dhokra',
-        subCategory: 'Living Voice Onboarded',
+        subCategory: 'Voice onboarded',
         region: selectedDialect.village,
         state: 'India',
         image: selectedDialect.previewImage,
@@ -289,13 +185,11 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
         lineage: `${selectedDialect.name} Living Tradition`,
         hoursToCraft: selectedDialect.hours,
         materials: selectedDialect.englishTranslation.slice(0, 70) + '...',
-        pohhIndex: selectedDialect.pohhScore,
         audioNarrative: {
           dialect: selectedDialect.name,
           vernacularQuote: selectedDialect.speechAudioText,
           englishTranslation: selectedDialect.englishTranslation,
         },
-        hash: `0x${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}`,
       };
 
       onPublishListing?.(newItem);
@@ -305,52 +199,58 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-2xl overflow-y-auto">
-      <motion.div
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-indigo/80 backdrop-blur-sm overflow-y-auto"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <m.div
+        ref={panelRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-label="List a craft by speaking"
         initial={{ opacity: 0, scale: 0.94, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.94, y: 30 }}
-        className="relative w-full max-w-4xl my-auto rounded-[32px] bg-[#0c0a08] border border-[#D4AF37]/35 p-5 sm:p-8 shadow-[0_25px_90px_rgba(0,0,0,0.9)] text-left overflow-hidden"
+        className="relative w-full max-w-4xl my-auto rounded bg-khadi p-5 sm:p-8 shadow-xl text-left overflow-hidden focus:outline-none"
       >
-        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 w-9 h-9 rounded-full bg-[#1e1710] border border-[#D4AF37]/25 text-[#FAF7F2]/70 hover:text-white flex items-center justify-center transition-colors z-20"
+          className="absolute top-6 right-6 w-9 h-9 rounded bg-cream border border-kiln/20 text-indigo hover:text-madder flex items-center justify-center transition-colors z-20"
         >
           <X size={18} />
         </button>
 
-        {/* Modal Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D4AF37]/15 pb-6 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-kiln/15 pb-6 mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#C85A32] to-[#D4AF37] flex items-center justify-center text-[#060709] shadow-lg shadow-[#D4AF37]/20">
+            <div className="w-12 h-12 rounded bg-madder flex items-center justify-center text-khadi">
               <Mic size={24} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-serif-luxury text-2xl sm:text-3xl text-[#FAF7F2] font-bold">
-                  Zero-Literacy Voice Studio
+                <h3 className="font-display text-2xl sm:text-3xl text-indigo">
+                  List a craft by speaking
                 </h3>
-                <span className="px-2 py-0.5 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/30 text-[10px] text-[#D4AF37] font-telemetry">
-                  AUDIO AI ONBOARDING
-                </span>
               </div>
-              <p className="text-xs text-[#FAF7F2]/65 font-sans mt-0.5">
-                Master artisans speak in their native mother tongue. MILAAN translates, computes fair wages, and mints ONDC Beckn v2 payloads.
+              <div className="text-sm text-kiln font-body mt-1">
+                This is a prototype. Prices, people and payments shown are examples.
+              </div>
+              <p className="text-base text-indigo font-body mt-1">
+                Artisans describe their work in their own words — MILAAN translates it and turns it
+                into a fair, ready-to-publish listing.
               </p>
             </div>
           </div>
         </div>
 
-        {/* ------------------------------------------------------------- */}
-        {/* STEP 1: VERNACULAR DIALECT SWITCHER */}
-        {/* ------------------------------------------------------------- */}
         <div className="mb-6 space-y-2">
-          <label className="text-xs font-telemetry uppercase text-[#D4AF37] tracking-wider flex items-center gap-1.5">
-            <Globe size={13} />
-            <span>Select Native Indian Dialect:</span>
+          <label className="text-base font-body text-kiln flex items-center gap-1.5">
+            <Globe size={16} />
+            <span>Choose a language:</span>
           </label>
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
             {DIALECT_PRESETS.map((preset) => (
               <button
                 key={preset.id}
@@ -359,163 +259,156 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
                   setHasProcessed(false);
                   setIsPublished(false);
                 }}
-                className={`px-4 py-2 rounded-2xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-2 ${
+                className={`px-4 py-2 rounded text-base font-body transition-colors whitespace-nowrap flex items-center gap-2 ${
                   selectedDialect.id === preset.id
-                    ? 'bg-gradient-to-r from-[#C85A32] to-[#D4AF37] text-[#060709] font-bold shadow-md shadow-[#D4AF37]/25 scale-[1.02]'
-                    : 'bg-[#18130d] text-[#FAF7F2]/80 hover:text-white border border-[#D4AF37]/20'
+                    ? 'bg-madder text-khadi'
+                    : 'bg-cream text-indigo border border-kiln/20 hover:border-kiln/50'
                 }`}
               >
                 <span>{preset.nativeLabel}</span>
-                <span className="opacity-60 text-[10px]">({preset.name.split(' ')[0]})</span>
+                <span className="opacity-80 text-sm">({preset.name.split(' ')[0]})</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* ------------------------------------------------------------- */}
-        {/* STEP 2: SIMULATED AUDIO RECORDING WAVEFORM */}
-        {/* ------------------------------------------------------------- */}
-        <div className="p-5 sm:p-6 rounded-3xl bg-[#15100a] border border-[#D4AF37]/25 shadow-inner space-y-4 mb-6">
+        <div className="p-5 sm:p-6 rounded bg-cream border border-kiln/20 space-y-4 mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#231b12] border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37]">
+              <div className="w-10 h-10 rounded bg-khadi border border-kiln/20 flex items-center justify-center text-indigo">
                 <Volume2 size={18} />
               </div>
               <div>
-                <div className="text-xs font-telemetry text-[#D4AF37]">
-                  ARTISAN: {selectedDialect.artisanName} ({selectedDialect.village})
+                <div className="text-base font-body text-kiln">
+                  Artisan: {selectedDialect.artisanName} ({selectedDialect.village})
                 </div>
-                <div className="text-sm font-serif-luxury text-[#FAF7F2] font-semibold">
+                <div className="text-lg font-display text-indigo">
                   "{selectedDialect.speechAudioText}"
                 </div>
               </div>
             </div>
 
-            {/* Record / Trigger Button */}
             <button
               onClick={isRecording ? stopRecording : startRecording}
-              className={`px-5 py-2.5 rounded-full font-medium text-xs flex items-center gap-2 transition-all ${
+              className={`px-5 py-2.5 rounded font-body text-base flex items-center gap-2 transition-colors ${
                 isRecording
-                  ? 'bg-red-600 text-white animate-pulse'
-                  : 'bg-[#D4AF37] text-[#060709] hover:bg-[#FAF7F2]'
+                  ? 'bg-red-600 text-khadi'
+                  : 'bg-madder text-khadi hover:bg-madder/90'
               }`}
             >
               {isRecording ? (
                 <>
-                  <MicOff size={15} />
+                  <MicOff size={18} />
                   <span>Listening... 0:0{recordSeconds}</span>
                 </>
               ) : (
                 <>
-                  <Mic size={15} />
-                  <span>Simulate Voice Ingestion</span>
+                  <Mic size={18} />
+                  <span>Play sample recording</span>
                 </>
               )}
             </button>
           </div>
 
-          {/* Canvas Waveform Visualizer */}
-          <div className="w-full h-16 rounded-2xl bg-[#090705] border border-[#D4AF37]/15 p-2 flex items-center justify-center overflow-hidden">
+          <div className="w-full h-16 rounded bg-khadi border border-kiln/20 p-2 flex items-center justify-center overflow-hidden">
             <canvas ref={canvasRef} width={680} height={64} className="w-full h-full" />
           </div>
 
-          {/* Real-time English AI Translation */}
-          <div className="text-xs text-[#FAF7F2]/80 bg-[#1e160e] p-3 rounded-2xl border border-[#D4AF37]/15 font-sans leading-relaxed">
-            <strong className="text-[#D4AF37] font-telemetry">MILAAN AI TRANSLATION:</strong>{' '}
-            "{selectedDialect.englishTranslation}"
+          <div className="text-lg text-indigo bg-cream p-3 rounded border border-kiln/20 font-body leading-relaxed">
+            <strong className="text-kiln font-display">English translation:</strong> "
+            {selectedDialect.englishTranslation}"
           </div>
         </div>
 
-        {/* ------------------------------------------------------------- */}
-        {/* STEP 3 & 4: AUTONOMOUS COST-PLUS LIVING WAGE & BECKN SCHEMA */}
-        {/* ------------------------------------------------------------- */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          
-          {/* Left: Cost-Plus Fair Wage Breakdown (5 Cols) */}
-          <div className="md:col-span-5 p-5 rounded-3xl bg-[#140f09] border border-[#D4AF37]/25 space-y-4">
-            <div className="flex items-center gap-2 text-xs font-telemetry text-[#58D68D]">
-              <ShieldCheck size={16} />
-              <span>TRANSPARENT COST-PLUS LIVING WAGE</span>
+          <div className="md:col-span-5 p-5 rounded bg-cream border border-kiln/20 space-y-4">
+            <div className="flex items-center gap-2 text-base font-body text-kiln">
+              <ShieldCheck size={18} />
+              <span>How the price is calculated</span>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="flex justify-between items-center text-[#FAF7F2]/75">
-                <span>Raw Materials Expense:</span>
-                <span className="font-telemetry text-[#FAF7F2] font-semibold">₹{selectedDialect.rawCostINR}</span>
+            <div className="space-y-3 text-base text-indigo font-body">
+              <div className="flex justify-between items-center">
+                <span>Materials:</span>
+                <span className="font-medium">
+                  ₹{selectedDialect.rawCostINR}
+                </span>
               </div>
 
-              <div className="flex justify-between items-center text-[#FAF7F2]/75">
-                <span>Manual Labor ({selectedDialect.hours} hrs @ ₹{selectedDialect.fairHourlyWage}/hr):</span>
-                <span className="font-telemetry text-[#FAF7F2] font-semibold">₹{laborCost}</span>
+              <div className="flex justify-between items-center">
+                <span>
+                  Craftsmanship ({selectedDialect.hours} hrs at ₹{selectedDialect.fairHourlyWage}/hr):
+                </span>
+                <span className="font-medium">₹{laborCost}</span>
               </div>
 
-              <div className="flex justify-between items-center text-[#FAF7F2]/75">
-                <span>Heritage GI Skill Preservation (+22%):</span>
-                <span className="font-telemetry text-[#FAF7F2] font-semibold">₹{premiumSkill}</span>
+              <div className="flex justify-between items-center">
+                <span>Master skill premium (+22%):</span>
+                <span className="font-medium">₹{premiumSkill}</span>
               </div>
 
-              <div className="pt-3 border-t border-[#D4AF37]/20 flex justify-between items-center">
+              <div className="pt-3 border-t border-kiln/20 flex justify-between items-center bg-neem/10 p-2 rounded">
                 <div>
-                  <div className="text-[10px] font-telemetry text-[#D4AF37]">DIRECT ARTISAN PAYOUT</div>
-                  <div className="text-xl font-telemetry font-bold text-[#58D68D]">
+                  <div className="text-sm font-body text-kiln">Artisan receives</div>
+                  <div className="text-xl font-display text-neem">
                     ₹{fairListingPriceINR.toLocaleString('en-IN')}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-[10px] font-telemetry text-[#FAF7F2]/50">GLOBAL EXPORT</div>
-                  <div className="text-lg font-telemetry font-bold text-[#FAF7F2]">
-                    ${fairListingPriceUSD} USD
+                  <div className="text-sm font-body text-kiln">
+                    Rough intl. price
+                  </div>
+                  <div className="text-lg font-display text-indigo">
+                    {formatPrice(fairListingPriceINR, 'USD')} USD
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Proof of Human Hand Score */}
-            <div className="px-3.5 py-2 rounded-2xl bg-[#1c150c] border border-[#2D5A43]/50 flex items-center justify-between text-xs font-telemetry">
-              <span className="text-[#FAF7F2]/80">Proof-of-Human-Hand:</span>
-              <span className="text-[#58D68D] font-bold">{selectedDialect.pohhScore}% Authentic</span>
+            <div className="px-3.5 py-2 rounded bg-khadi border border-kiln/20 flex items-center justify-between text-base font-body">
+              <span className="text-kiln">Craft origin & hours:</span>
+              <span className="text-indigo">
+                {selectedDialect.village} • {selectedDialect.hours} hrs handwork
+              </span>
             </div>
           </div>
 
-          {/* Right: Instant Structured ONDC Beckn v2 JSON Schema (7 Cols) */}
-          <div className="md:col-span-7 flex flex-col justify-between p-5 rounded-3xl bg-[#080705] border border-[#D4AF37]/25 space-y-4">
-            <div className="flex items-center justify-between text-xs font-telemetry">
-              <span className="text-[#D4AF37] flex items-center gap-1.5">
-                <FileCode size={14} />
-                <span>ONDC Beckn v2 JSON Output</span>
+          <div className="md:col-span-7 flex flex-col justify-between p-5 rounded bg-cream border border-kiln/20 space-y-4">
+            <div className="flex items-center justify-between text-base font-body">
+              <span className="text-indigo flex items-center gap-1.5">
+                <FileCode size={18} />
+                <span>Listing JSON</span>
               </span>
-              <span className="text-[#58D68D]">
-                {hasProcessed ? 'STATUS: INGESTION COMPLETE & READY' : 'STATUS: READY FOR BROADCAST'}
+              <span className="text-neem">
+                {hasProcessed ? 'Status: Ready to publish' : 'Status: Sample ready'}
               </span>
             </div>
 
-            {/* Code snippet viewer */}
-            <pre className="h-44 p-3 rounded-2xl bg-[#040403] border border-[#D4AF37]/15 text-[11px] font-telemetry text-[#FAF7F2]/80 overflow-y-auto scrollbar-thin scrollbar-thumb-[#D4AF37]/30 text-left">
+            <pre className="h-44 p-3 rounded bg-khadi border border-kiln/20 text-sm font-body text-indigo overflow-y-auto no-scrollbar text-left">
               {JSON.stringify(generatedBecknPayload, null, 2)}
             </pre>
 
-            {/* Publish Confirmation Action */}
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={handlePublish}
                 disabled={isPublishing || isPublished}
-                className={`flex-1 py-3 rounded-full font-semibold text-xs tracking-wider uppercase flex items-center justify-center gap-2 transition-all shadow-lg ${
+                className={`flex-1 py-3 rounded font-body text-lg flex items-center justify-center gap-2 transition-colors ${
                   isPublished
-                    ? 'bg-[#2D5A43] text-white'
-                    : 'bg-gradient-to-r from-[#C85A32] to-[#D4AF37] text-[#060709] hover:scale-[1.02] shadow-[#D4AF37]/25'
+                    ? 'bg-neem text-khadi'
+                    : 'bg-madder text-khadi hover:bg-madder/90'
                 }`}
               >
                 {isPublishing ? (
-                  <span>Broadcasting to Beckn Network...</span>
+                  <span>Publishing…</span>
                 ) : isPublished ? (
                   <>
-                    <CheckCircle2 size={16} />
-                    <span>Published to Live Vault & ONDC</span>
+                    <CheckCircle2 size={18} />
+                    <span>Published to crafts</span>
                   </>
                 ) : (
                   <>
-                    <Send size={15} />
-                    <span>Publish Listing to ONDC Network</span>
+                    <Send size={18} />
+                    <span>Publish this listing</span>
                   </>
                 )}
               </button>
@@ -523,18 +416,16 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
               <button
                 onClick={() => {
                   navigator.clipboard?.writeText(JSON.stringify(generatedBecknPayload, null, 2));
-                  alert('Beckn v2 JSON schema copied to clipboard!');
+                  setCopiedJson(true);
                 }}
-                className="px-4 py-3 rounded-full bg-[#1a140d] border border-[#D4AF37]/30 text-xs text-[#D4AF37] font-telemetry hover:bg-[#D4AF37]/20"
+                className="px-4 py-3 rounded bg-khadi border border-kiln/30 text-base text-indigo font-body hover:bg-kiln/10"
               >
-                Copy JSON
+                {copiedJson ? 'Copied ✓' : 'Copy JSON'}
               </button>
             </div>
           </div>
-
         </div>
-
-      </motion.div>
+      </m.div>
     </div>
   );
 };

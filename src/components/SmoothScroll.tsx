@@ -1,65 +1,48 @@
-import React, { useEffect, useRef, useState, type ReactNode } from 'react';
-import Lenis, { type LenisScrollEvent } from '@studio-freight/lenis';
+import React, { useEffect, useState, type ReactNode } from 'react';
+import Lenis from 'lenis';
 import { LenisContext } from '../hooks/useLenis';
 
 interface SmoothScrollProps {
   children: ReactNode;
 }
 
+/**
+ * Real Lenis inertia scrolling driven by its built-in autoRaf.
+ * No per-frame React state.
+ */
 export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
   const [lenis, setLenis] = useState<Lenis | null>(null);
-  const [scrollInfo, setScrollInfo] = useState<LenisScrollEvent>({
-    scroll: 0,
-    limit: 0,
-    velocity: 0,
-    direction: 1,
-    progress: 0,
-  });
-
-  const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    // Instantiate Lenis smooth scroll with luxury inertia physics
-    const instance = new Lenis({
-      lerp: 0.08, // Buttery smooth response
-      smoothWheel: true,
-      duration: 1.2,
-    });
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    lenisRef.current = instance;
+    const instance = new Lenis({ autoRaf: true, lerp: 0.09, smoothWheel: true });
+    // Publishing the externally-created Lenis instance to context is the point of this component.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLenis(instance);
 
-    const unsubscribe = instance.on('scroll', (e: LenisScrollEvent) => {
-      setScrollInfo(e);
-    });
-
-    // Intercept internal hash links for smooth jumping
-    const handleAnchorClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      const anchor = target?.closest('a');
-      if (anchor && anchor.getAttribute('href')?.startsWith('#')) {
-        const hash = anchor.getAttribute('href');
-        if (hash && hash !== '#') {
-          e.preventDefault();
-          instance.scrollTo(hash, { offset: -60 });
-        }
+    // Smooth-jump internal anchors through Lenis
+    const onAnchor = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement)?.closest('a[href^="#"]');
+      if (!a) return;
+      const hash = a.getAttribute('href');
+      if (!hash || hash === '#') return;
+      const el = document.querySelector(hash);
+      if (el) {
+        e.preventDefault();
+        instance.scrollTo(el as HTMLElement, { offset: -72 });
       }
     };
-
-    document.addEventListener('click', handleAnchorClick);
+    document.addEventListener('click', onAnchor);
 
     return () => {
-      document.removeEventListener('click', handleAnchorClick);
-      unsubscribe();
+      document.removeEventListener('click', onAnchor);
       instance.destroy();
+      setLenis(null);
     };
   }, []);
 
-  return (
-    <LenisContext.Provider value={{ lenis, scrollInfo }}>
-      {children}
-    </LenisContext.Provider>
-  );
+  return <LenisContext.Provider value={lenis}>{children}</LenisContext.Provider>;
 };
 
 export default SmoothScroll;

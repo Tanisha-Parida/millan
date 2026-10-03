@@ -1,19 +1,14 @@
-import React, { useState } from 'react';
-import {
-  ShoppingBag,
-  Mic,
-  Menu,
-  X,
-  Sparkles,
-  ChevronDown
-} from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
+import { type CurrencyCode } from '../lib/currency';
 
 interface NavbarProps {
   onOpenVoiceStudio: () => void;
   cartCount?: number;
   onOpenCart?: () => void;
-  activeCurrency?: string;
-  onChangeCurrency?: (c: string) => void;
+  activeCurrency?: CurrencyCode;
+  onChangeCurrency?: (c: CurrencyCode) => void;
+  activeSection?: string;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -22,11 +17,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCart,
   activeCurrency = 'INR',
   onChangeCurrency,
+  activeSection = 'hero-portal',
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
+  const currencyContainerRef = useRef<HTMLDivElement>(null);
 
-  const currencies = [
+  const currencies: { code: CurrencyCode; symbol: string; label: string }[] = [
     { code: 'INR', symbol: '₹', label: 'Indian Rupee' },
     { code: 'USD', symbol: '$', label: 'US Dollar' },
     { code: 'EUR', symbol: '€', label: 'Euro' },
@@ -34,160 +31,245 @@ export const Navbar: React.FC<NavbarProps> = ({
     { code: 'JPY', symbol: '¥', label: 'Japanese Yen' },
   ];
 
+  useEffect(() => {
+    if (!currencyDropdownOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        currencyContainerRef.current &&
+        !currencyContainerRef.current.contains(e.target as Node)
+      ) {
+        setCurrencyDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setCurrencyDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currencyDropdownOpen]);
+
   return (
     <header className="sticky top-0 z-40 w-full select-none">
-      {/* Top Heritage Micro-Ticker (Conforming to Image 2 header) */}
-      <div className="w-full bg-[#0d0a08] border-b border-[#D4AF37]/15 py-1 px-4 text-center text-[10px] tracking-widest text-[#FAF7F2]/65 font-telemetry flex items-center justify-between">
-        <div className="hidden sm:flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#58D68D]" />
-          <span>ONDC BECKN v2 LIVE</span>
-        </div>
-        <div className="mx-auto">
-          We are heritage for 100% OF | GREEN FREE Handloom & Privacy Policy
-        </div>
-        <div className="hidden sm:flex items-center gap-2 text-[#D4AF37]">
-          <span>DIRECT ARTISAN DBT: 91.4%</span>
-        </div>
-      </div>
-
-      {/* Main Luxury Glass Navigation Bar */}
-      <div className="obsidian-glass-heavy border-b border-[#D4AF37]/20 px-4 sm:px-8 py-3.5 backdrop-blur-xl">
+      <div className="bg-indigo border-b border-khadi/20 px-4 sm:px-8 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          
-          {/* Brand Logo & Motto (Matching Image 2) */}
-          <a href="#hero-gate" className="flex flex-col group text-left">
+          <a
+            href="#hero-portal"
+            className="flex flex-col group text-left"
+            aria-label="Milaan"
+          >
             <div className="flex items-center gap-2">
-              <span className="font-cinzel text-xl sm:text-2xl font-bold tracking-[0.2em] text-[#FAF7F2] group-hover:text-[#D4AF37] transition-colors">
-                MILAAN
+              <span className="font-display text-xl sm:text-2xl font-bold text-khadi group-hover:text-khadi/80 transition-colors">
+                Milaan
               </span>
-              <Sparkles size={14} className="text-[#D4AF37] group-hover:rotate-45 transition-transform" />
             </div>
-            <span className="text-[9px] sm:text-[10px] tracking-[0.25em] font-telemetry text-[#D4AF37] -mt-0.5">
-              PEOPLE • CRAFTS • CULTURE
+            <span className="text-[13px] font-body text-khadi/80 -mt-0.5">
+              Maker's story
             </span>
           </a>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-7 text-xs font-medium tracking-wider text-[#FAF7F2]/80">
-            <a href="#hero-gate" className="hover:text-[#D4AF37] transition-colors">
+          <nav
+            className="hidden lg:flex items-center gap-7 text-sm font-medium text-khadi/80"
+            aria-label="Main navigation"
+          >
+            <a
+              href="#hero-portal"
+              aria-current={activeSection === 'hero-portal' ? 'page' : undefined}
+              className={`transition-colors py-1 ${
+                activeSection === 'hero-portal'
+                  ? 'text-khadi font-semibold border-b-2 border-madder'
+                  : 'hover:text-khadi'
+              }`}
+            >
               Home
             </a>
-            <a href="#artisan-vault" className="hover:text-[#D4AF37] transition-colors">
-              Artisan
+            <a
+              href="#artisan-vault"
+              aria-current={activeSection === 'artisan-vault' ? 'page' : undefined}
+              className={`transition-colors py-1 ${
+                activeSection === 'artisan-vault'
+                  ? 'text-khadi font-semibold border-b-2 border-madder'
+                  : 'hover:text-khadi'
+              }`}
+            >
+              Crafts
             </a>
-            <a href="#global-trade" className="hover:text-[#D4AF37] transition-colors">
-              Global Trade
+            <a
+              href="#craft-map"
+              aria-current={activeSection === 'craft-map' ? 'page' : undefined}
+              className={`transition-colors py-1 ${
+                activeSection === 'craft-map'
+                  ? 'text-khadi font-semibold border-b-2 border-madder'
+                  : 'hover:text-khadi'
+              }`}
+            >
+              Map
             </a>
-            <a href="#artisan-vault" className="hover:text-[#D4AF37] transition-colors">
-              Collections
-            </a>
-            <a href="#charter" className="hover:text-[#D4AF37] transition-colors">
+            <a
+              href="#footer"
+              aria-current={activeSection === 'footer' ? 'page' : undefined}
+              className={`transition-colors py-1 ${
+                activeSection === 'footer'
+                  ? 'text-khadi font-semibold border-b-2 border-madder'
+                  : 'hover:text-khadi'
+              }`}
+            >
               About
             </a>
           </nav>
 
-          {/* Right Action Icons & "Speak to Native" CTA Button */}
           <div className="flex items-center gap-3">
-            
-            {/* Currency Switcher */}
-            <div className="relative">
+            <div className="relative" ref={currencyContainerRef}>
               <button
+                type="button"
                 onClick={() => setCurrencyDropdownOpen(!currencyDropdownOpen)}
-                className="px-2.5 py-1.5 rounded-xl bg-[#1d1710] border border-[#D4AF37]/25 text-[11px] font-telemetry text-[#D4AF37] flex items-center gap-1 hover:bg-[#D4AF37]/15"
+                className="px-2.5 py-1.5 rounded bg-indigo border border-khadi/25 text-[13px] font-body text-khadi flex items-center gap-1 hover:bg-khadi/10 transition-colors"
+                aria-label={`Select currency, current is ${activeCurrency}`}
+                aria-expanded={currencyDropdownOpen}
+                aria-haspopup="listbox"
               >
                 <span>{activeCurrency}</span>
-                <ChevronDown size={12} />
+                <ChevronDown size={14} aria-hidden="true" />
               </button>
 
               {currencyDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-32 rounded-xl bg-[#140f0a] border border-[#D4AF37]/30 shadow-2xl py-1 z-50">
+                <div
+                  role="listbox"
+                  aria-label="Available currencies"
+                  className="absolute right-0 mt-2 w-36 rounded bg-indigo border border-khadi/30 shadow-md py-1 z-50"
+                >
                   {currencies.map((c) => (
                     <button
                       key={c.code}
+                      type="button"
+                      role="option"
+                      aria-selected={activeCurrency === c.code}
                       onClick={() => {
                         onChangeCurrency?.(c.code);
                         setCurrencyDropdownOpen(false);
                       }}
-                      className="w-full text-left px-3 py-1.5 text-xs text-[#FAF7F2]/80 hover:bg-[#D4AF37]/20 hover:text-white flex items-center justify-between"
+                      className={`w-full text-left px-3 py-2 text-sm flex items-center justify-between transition-colors ${
+                        activeCurrency === c.code
+                          ? 'bg-khadi/20 text-khadi font-semibold'
+                          : 'text-khadi/80 hover:bg-khadi/10 hover:text-khadi'
+                      }`}
                     >
                       <span>{c.code}</span>
-                      <span className="text-[#D4AF37] font-telemetry">{c.symbol}</span>
+                      <span className="text-khadi font-body">{c.symbol}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Shopping Bag Trigger */}
             <button
+              type="button"
               onClick={onOpenCart}
-              className="p-2 rounded-xl bg-[#1d1710] border border-[#D4AF37]/25 text-[#FAF7F2]/80 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 transition-colors relative"
-              title="Cart / Commission Bag"
+              className="p-2 rounded bg-indigo border border-khadi/25 text-khadi/80 hover:text-khadi hover:border-khadi/50 transition-colors relative"
+              title="Add to bag"
+              aria-label={`Shopping bag containing ${cartCount} ${cartCount === 1 ? 'item' : 'items'}`}
             >
-              <ShoppingBag size={18} />
+              <ShoppingBag size={18} aria-hidden="true" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#C85A32] text-white text-[10px] font-telemetry flex items-center justify-center font-bold shadow-md">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-madder text-khadi text-[13px] font-body flex items-center justify-center font-bold">
                   {cartCount}
                 </span>
               )}
             </button>
 
-            {/* "Speak to Native" Golden Pill CTA (Matching Image 2) */}
             <button
+              type="button"
               onClick={onOpenVoiceStudio}
-              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#C85A32] to-[#D4AF37] text-[#060709] font-medium text-xs shadow-md shadow-[#D4AF37]/20 hover:scale-[1.03] active:scale-[0.98] transition-all"
+              aria-label="List a craft"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded bg-madder text-khadi font-medium text-sm hover:opacity-90 transition-opacity"
             >
-              <Mic size={14} className="text-[#060709]" />
-              <span className="font-semibold">Speak to Native</span>
+              <span className="font-semibold">List a craft</span>
             </button>
 
-            {/* Mobile Hamburger Menu Toggle */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl bg-[#1d1710] border border-[#D4AF37]/25 text-[#FAF7F2]/80 lg:hidden"
+              className="p-2 rounded bg-indigo border border-khadi/25 text-khadi/80 lg:hidden"
+              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {mobileMenuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
             </button>
-
           </div>
-
         </div>
 
-        {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden pt-4 pb-2 border-t border-[#D4AF37]/15 mt-3 space-y-2">
+          <nav
+            className="lg:hidden pt-4 pb-2 border-t border-khadi/15 mt-3 space-y-2"
+            aria-label="Mobile navigation"
+          >
             <a
-              href="#hero-gate"
+              href="#hero-portal"
+              aria-current={activeSection === 'hero-portal' ? 'page' : undefined}
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm text-[#FAF7F2]/80 hover:text-[#D4AF37]"
+              className={`block py-2 text-base transition-colors ${
+                activeSection === 'hero-portal'
+                  ? 'text-khadi font-semibold'
+                  : 'text-khadi/80 hover:text-khadi'
+              }`}
             >
               Home
             </a>
             <a
               href="#artisan-vault"
+              aria-current={activeSection === 'artisan-vault' ? 'page' : undefined}
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm text-[#FAF7F2]/80 hover:text-[#D4AF37]"
+              className={`block py-2 text-base transition-colors ${
+                activeSection === 'artisan-vault'
+                  ? 'text-khadi font-semibold'
+                  : 'text-khadi/80 hover:text-khadi'
+              }`}
             >
-              Artisan Vault
+              Crafts
             </a>
             <a
-              href="#global-trade"
+              href="#craft-map"
+              aria-current={activeSection === 'craft-map' ? 'page' : undefined}
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm text-[#FAF7F2]/80 hover:text-[#D4AF37]"
+              className={`block py-2 text-base transition-colors ${
+                activeSection === 'craft-map'
+                  ? 'text-khadi font-semibold'
+                  : 'text-khadi/80 hover:text-khadi'
+              }`}
             >
-              Global Trade Corridor
+              Map
+            </a>
+            <a
+              href="#footer"
+              aria-current={activeSection === 'footer' ? 'page' : undefined}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`block py-2 text-base transition-colors ${
+                activeSection === 'footer'
+                  ? 'text-khadi font-semibold'
+                  : 'text-khadi/80 hover:text-khadi'
+              }`}
+            >
+              About
             </a>
             <button
+              type="button"
               onClick={() => {
                 setMobileMenuOpen(false);
                 onOpenVoiceStudio();
               }}
-              className="w-full mt-3 py-2.5 rounded-full bg-gradient-to-r from-[#C85A32] to-[#D4AF37] text-[#060709] font-semibold text-xs flex items-center justify-center gap-2"
+              className="w-full mt-3 py-2.5 rounded bg-madder text-khadi font-semibold text-sm flex items-center justify-center gap-2"
             >
-              <Mic size={15} />
-              <span>Launch Voice Studio</span>
+              <span>List a craft</span>
             </button>
-          </div>
+          </nav>
         )}
       </div>
     </header>

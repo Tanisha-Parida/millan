@@ -18,11 +18,7 @@
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@studio-freight/lenis": ["src/lib/lenis.ts"],
-      "lenis": ["src/lib/lenis.ts"],
-      "framer-motion": ["src/lib/framer-motion.tsx"],
-      "lucide-react": ["src/lib/lucide-react.tsx"]
+      "@/*": ["src/*"]
     },
 
     /* Linting */

@@ -1,16 +1,12 @@
 import { createContext, useContext } from 'react';
-import type Lenis from '@studio-freight/lenis';
-import type { LenisScrollEvent } from '@studio-freight/lenis';
+import type Lenis from 'lenis';
 
-export interface LenisContextType {
-  lenis: Lenis | null;
-  scrollInfo: LenisScrollEvent;
+/**
+ * Holds the active Lenis instance (null when the user prefers reduced motion
+ * and native scrolling is used instead). Consumers must treat it as nullable.
+ */
+export const LenisContext = createContext<Lenis | null>(null);
+
+export function useLenis(): Lenis | null {
+  return useContext(LenisContext);
 }
-
-export const LenisContext = createContext<LenisContextType>({
-  lenis: null,
-  scrollInfo: { scroll: 0, limit: 0, velocity: 0, direction: 1, progress: 0 },
-});
-
-export const useLenis = () => useContext(LenisContext);
-export default useLenis;
