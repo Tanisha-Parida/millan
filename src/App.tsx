@@ -5,8 +5,11 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { type CurrencyCode } from './lib/currency';
 import Navbar from './components/Navbar';
 import ScrollDoorHero from './components/ScrollDoorHero';
+import OneMakerSection from './components/OneMakerSection';
+import ProblemSection from './components/ProblemSection';
 import ArtisanVaultGrid, { type CraftItem } from './components/ArtisanVaultGrid';
 import GlobalGlobeSection from './components/GlobalGlobeSection';
+import FairPriceCalculator from './components/FairPriceCalculator';
 import Footer from './components/Footer';
 
 // Lazy-load heavier modals so their code and dependencies are split
@@ -196,6 +199,10 @@ export default function App() {
                 onOpenVoiceStudio={() => setIsVoiceStudioOpen(true)}
                 onExploreVault={scrollToVault}
               />
+
+              <OneMakerSection />
+              <ProblemSection />
+
               <ArtisanVaultGrid
                 onAddToCart={handleAddToCart}
                 cartCount={cartIds.length}
@@ -203,6 +210,8 @@ export default function App() {
                 activeCurrency={activeCurrency}
               />
               <GlobalGlobeSection />
+
+              <FairPriceCalculator />
             </main>
 
             <Suspense fallback={null}>
