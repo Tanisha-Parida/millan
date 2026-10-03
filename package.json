@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "typecheck:api": "tsc --noEmit -p tsconfig.api.json",
     "lint": "eslint .",
     "format": "prettier --write .",
     "check-links": "node scripts/check-links.mjs"
@@ -27,6 +28,7 @@
     "@types/node": "22.19.17",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
+    "@vercel/node": "^20.0.0",
     "@vitejs/plugin-react": "5.1.1",
     "eslint": "^10.11.0",
     "eslint-plugin-react-hooks": "^7.1.1",
