@@ -99,7 +99,7 @@ export const FairPriceCalculator: React.FC = () => {
                 className="w-full accent-madder h-2 bg-clay/30 rounded-lg cursor-pointer"
                 aria-label="Raw materials cost slider"
               />
-              <div className="flex justify-between text-[11px] text-ink-soft/80 mt-1">
+              <div className="flex justify-between text-xs text-ink-soft mt-1">
                 <span>₹500</span>
                 <span>₹15,000</span>
               </div>
@@ -135,7 +135,7 @@ export const FairPriceCalculator: React.FC = () => {
                 className="w-full accent-madder h-2 bg-clay/30 rounded-lg cursor-pointer"
                 aria-label="Hours of crafting slider"
               />
-              <div className="flex justify-between text-[11px] text-ink-soft/80 mt-1">
+              <div className="flex justify-between text-xs text-ink-soft mt-1">
                 <span>4 hrs</span>
                 <span>120 hrs</span>
               </div>
@@ -172,7 +172,7 @@ export const FairPriceCalculator: React.FC = () => {
                 className="w-full accent-madder h-2 bg-clay/30 rounded-lg cursor-pointer"
                 aria-label="Skill rate per hour slider"
               />
-              <div className="flex justify-between text-[11px] text-ink-soft/80 mt-1">
+              <div className="flex justify-between text-xs text-ink-soft mt-1">
                 <span>₹150/hr (Fair wage base)</span>
                 <span>₹600/hr (Master kaarigar)</span>
               </div>
@@ -208,7 +208,7 @@ export const FairPriceCalculator: React.FC = () => {
                 className="w-full accent-madder h-2 bg-clay/30 rounded-lg cursor-pointer"
                 aria-label="Insured shipping slider"
               />
-              <div className="flex justify-between text-[11px] text-ink-soft/80 mt-1">
+              <div className="flex justify-between text-xs text-ink-soft mt-1">
                 <span>₹200</span>
                 <span>₹2,000</span>
               </div>

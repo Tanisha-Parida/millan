@@ -89,6 +89,10 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                   <img
                     src={cat.image}
                     alt={`${cat.title} craft tradition`}
+                    width={400}
+                    height={500}
+                    loading="lazy"
+                    decoding="async"
                     style={{
                       filter: 'saturate(0.92) contrast(1.03) sepia(0.06)',
                     }}
@@ -98,7 +102,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
               </div>
 
               {/* Text Block below on Khadi with Fixed-Height for Baseline Alignment */}
-              <div className="p-5 flex-1 flex flex-col justify-between min-h-[148px]">
+              <div className="p-4 flex-1 flex flex-col justify-between min-h-[148px]">
                 <div>
                   <h3 className="font-heading text-2xl text-ink font-semibold leading-snug group-hover:underline group-hover:underline-offset-4 decoration-madder transition-all">
                     {cat.title}
@@ -172,7 +176,7 @@ export const StateSelector: React.FC<StateSelectorProps> = ({
       transition={{ duration: 0.3 }}
       className="bg-parchment border border-clay/70 rounded-[4px] p-6 sm:p-8 space-y-6 text-left"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-clay/40 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-clay/40 pb-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-body text-ink-soft">
             <button
@@ -228,13 +232,13 @@ export const StateSelector: React.FC<StateSelectorProps> = ({
         </div>
 
         <div className="relative w-full md:w-72">
-          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-soft" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
           <input
             type="text"
             placeholder="Search state..."
             value={stateSearchQuery}
             onChange={(e) => setStateSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 bg-khadi border border-clay rounded-[6px] text-xs text-ink placeholder-ink-soft/70 focus:outline-none focus:border-madder"
+            className="w-full pl-8 pr-8 py-2 bg-khadi border border-clay rounded-[6px] text-xs text-ink placeholder-ink-soft/70 focus:outline-none focus:border-madder"
           />
           {stateSearchQuery && (
             <button
@@ -247,7 +251,7 @@ export const StateSelector: React.FC<StateSelectorProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 max-h-[460px] overflow-y-auto pr-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[460px] overflow-y-auto pr-1">
         {filteredStates.map((st) => {
           const isSigHub = signatureStateNames.has(st.name.toLowerCase());
           const hubInfo = signatureHubs.find(

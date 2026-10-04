@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { m } from 'framer-motion';
-import { Plane, X, ShieldCheck, CheckCircle2, Send } from 'lucide-react';
+import { m as motion } from 'framer-motion';
+import { ShoppingBag, X, ShieldCheck, CheckCircle2, Send } from 'lucide-react';
 import type { CraftItem } from '../types/craft';
 import { formatPrice, type CurrencyCode } from '../lib/currency';
 import { useModalA11y } from '../hooks/useModalA11y';
-
 import { VAULT_ITEMS } from '../data/vaultItems';
 
 interface CommissionModalProps {
@@ -26,11 +25,11 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
   onRemoveCartItem,
   activeCurrency = 'INR',
 }) => {
-  const [selectedGuild, setSelectedGuild] = useState('Sambalpuri Handloom Silk');
+  const [selectedGuild, setSelectedGuild] = useState('Sambalpuri Handloom Silk (Odisha)');
   const [patronName, setPatronName] = useState('');
-  const [destinationCity, setDestinationCity] = useState('Tokyo, Japan');
+  const [destinationCity, setDestinationCity] = useState('');
   const [customBrief, setCustomBrief] = useState('');
-  const [targetBudgetINR, setTargetBudgetINR] = useState(35000);
+  const [targetBudgetINR, setTargetBudgetINR] = useState(15000);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const panelRef = useModalA11y(isOpen, onClose);
@@ -38,8 +37,8 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
   const guilds = [
     'Sambalpuri Handloom Silk (Odisha)',
     'Bastar Lost-Wax Dhokra (Chhattisgarh)',
-    'Nizamabad Black Luster Clay (UP)',
-    'Kutch Mirrorwork & Rogan Art (Gujarat)',
+    'Nizamabad Black Clay (UP)',
+    'Kutch Desert Bandhani & Ajrakh (Gujarat)',
     'Channapatna Lacquer Woodcraft (Karnataka)',
     'Mithila Natural Pigment Canvas (Bihar)',
   ];
@@ -50,7 +49,7 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
-    }, 1200);
+    }, 900);
   };
 
   const itemsToDisplay = React.useMemo(() => {
@@ -71,63 +70,69 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-indigo/80 backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-vat/80 backdrop-blur-sm overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <m.div
+      <motion.div
         ref={panelRef}
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        aria-label="Your bag"
-        initial={{ opacity: 0, scale: 0.94, y: 30 }}
+        aria-label="Shopping bag and custom commission"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 30 }}
-        className="relative w-full max-w-2xl my-auto rounded bg-khadi p-6 sm:p-8 shadow-xl text-left focus:outline-none"
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="relative w-full max-w-2xl my-auto rounded-[4px] bg-parchment border border-clay p-6 sm:p-8 shadow-xl text-left focus:outline-none"
       >
+        {/* Close Button */}
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-6 right-6 w-9 h-9 rounded bg-cream border border-kiln/20 text-indigo hover:text-madder flex items-center justify-center transition-colors"
+          className="absolute top-4 right-4 w-10 h-10 rounded-[6px] bg-khadi border border-clay text-ink hover:text-madder flex items-center justify-center transition-colors cursor-pointer"
+          aria-label="Close modal"
         >
           <X size={18} />
         </button>
 
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded bg-madder flex items-center justify-center text-khadi">
-            <Plane size={24} />
+        {/* Header */}
+        <div className="flex items-center gap-4 border-b border-clay/40 pb-4 mb-6">
+          <div className="w-12 h-12 rounded-[6px] bg-madder flex items-center justify-center text-bone shrink-0 shadow-xs">
+            <ShoppingBag size={22} />
           </div>
           <div>
-            <h3 className="font-display text-2xl sm:text-3xl text-indigo">
-              Your bag
+            <h3 className="font-heading text-2xl text-ink font-semibold">
+              Your bag & custom commission
             </h3>
-            <p className="text-base text-kiln font-body">
-              Commission a one-of-a-kind piece directly from a master artisan family.
+            <p className="text-sm text-ink-soft mt-0.5">
+              Acquire ready masterworks or commission custom pieces directly from rural artisan families.
             </p>
           </div>
         </div>
 
-        {itemsToDisplay.length > 0 && (
-          <div className="mb-6 p-4 rounded bg-cream border border-kiln/20 space-y-2">
-            <div className="text-base font-body text-kiln">
-              Current commission bag ({itemsToDisplay.length} items):
+        {/* Items in Bag List */}
+        {itemsToDisplay.length > 0 ? (
+          <div className="mb-6 p-4 rounded-[4px] bg-khadi border border-clay space-y-3">
+            <div className="text-xs text-ink-soft uppercase tracking-wider font-semibold">
+              Selected crafts ({itemsToDisplay.length}):
             </div>
-            <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1 no-scrollbar">
+            <div className="space-y-2 max-h-40 overflow-y-auto pr-1 no-scrollbar">
               {itemsToDisplay.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between text-lg font-body py-1 border-b border-kiln/10"
+                  className="flex items-center justify-between text-sm font-body py-1.5 border-b border-clay/40 last:border-0"
                 >
-                  <span className="text-indigo">{item.title}</span>
-                  <div className="flex items-center gap-3">
-                    <span className="text-indigo">
+                  <span className="text-ink font-medium truncate max-w-xs">{item.title}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-ink font-bold tabular-nums">
                       {formatPrice(item.priceINR, activeCurrency)}
                     </span>
                     {onRemoveCartItem && (
                       <button
+                        type="button"
                         onClick={() => onRemoveCartItem(item.id)}
-                        className="text-madder hover:text-madder/80 text-base"
+                        className="text-madder hover:text-madder-dark text-xs font-semibold cursor-pointer"
                       >
                         Remove
                       </button>
@@ -136,45 +141,51 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
                 </div>
               ))}
             </div>
-            <div className="pt-2 flex justify-between items-center text-lg font-display text-indigo">
-              <span>Total value:</span>
-              <span className="text-neem">
+            <div className="pt-2 border-t border-clay/60 flex justify-between items-center text-sm font-heading font-semibold text-ink">
+              <span>Total amount:</span>
+              <span className="text-neem text-base font-bold tabular-nums">
                 {formatPrice(totalCartValue, activeCurrency)}
               </span>
             </div>
           </div>
+        ) : (
+          <div className="mb-6 p-4 rounded-[4px] bg-khadi border border-clay/60 text-xs text-ink-soft leading-relaxed">
+            Your bag is empty. You can browse the catalog above to add ready crafts, or describe a custom bespoke commission below.
+          </div>
         )}
 
         {isSubmitted ? (
-          <div className="p-8 rounded bg-cream border border-neem/20 text-center space-y-4">
-            <div className="w-14 h-14 rounded-full bg-neem/10 text-neem mx-auto flex items-center justify-center">
-              <CheckCircle2 size={32} />
+          <div className="p-8 rounded-[4px] bg-khadi border border-neem/30 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-neem/15 text-neem mx-auto flex items-center justify-center">
+              <CheckCircle2 size={28} />
             </div>
-            <h4 className="font-display text-2xl text-indigo">Request sent</h4>
-            <p className="text-lg text-kiln font-body max-w-md mx-auto leading-relaxed">
-              Your brief has been sent to the{' '}
-              <strong className="text-indigo font-medium">{selectedGuild}</strong> cooperative. Expect a
-              reply with a video call link and photos of materials within 24 hours.
+            <h4 className="font-heading text-2xl text-ink font-semibold">
+              Commission request submitted
+            </h4>
+            <p className="text-sm text-ink-soft max-w-md mx-auto leading-relaxed">
+              Your brief has been forwarded to the{' '}
+              <strong className="text-ink font-medium">{selectedGuild}</strong> collective. An artisan coordinator will connect within 24 hours.
             </p>
             <div className="pt-2">
               <button
+                type="button"
                 onClick={onClose}
-                className="px-6 py-2.5 rounded bg-madder text-khadi font-body text-lg transition-colors hover:bg-madder/90"
+                className="btn-primary h-11 text-xs"
               >
-                Keep browsing
+                Return to catalog
               </button>
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 text-lg font-body">
+          <form onSubmit={handleSubmit} className="space-y-4 text-sm font-body">
             <div>
-              <label className="block text-kiln mb-1.5">
+              <label className="block text-xs text-ink-soft uppercase tracking-wide font-medium mb-1">
                 Craft tradition:
               </label>
               <select
                 value={selectedGuild}
                 onChange={(e) => setSelectedGuild(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded bg-cream border border-kiln/30 text-indigo focus:outline-none focus:border-kiln"
+                className="w-full h-11 px-3 rounded-[6px] bg-khadi border border-clay text-ink text-sm focus:outline-none focus:border-madder"
               >
                 {guilds.map((g) => (
                   <option key={g} value={g}>
@@ -186,87 +197,85 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-kiln mb-1.5">
+                <label className="block text-xs text-ink-soft uppercase tracking-wide font-medium mb-1">
                   Your name:
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Gallery Maison Tokyo"
+                  placeholder="e.g. Maya Sharma"
                   value={patronName}
                   onChange={(e) => setPatronName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded bg-cream border border-kiln/30 text-indigo focus:outline-none focus:border-kiln"
+                  className="w-full h-11 px-3 rounded-[6px] bg-khadi border border-clay text-ink text-sm focus:outline-none focus:border-madder"
                 />
               </div>
 
               <div>
-                <label className="block text-kiln mb-1.5">
-                  Deliver to (city, country):
+                <label className="block text-xs text-ink-soft uppercase tracking-wide font-medium mb-1">
+                  Delivery location:
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Paris, France"
+                  placeholder="City, Country"
                   value={destinationCity}
                   onChange={(e) => setDestinationCity(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded bg-cream border border-kiln/30 text-indigo focus:outline-none focus:border-kiln"
-                />
-              </div>
-
-              <div>
-                <label className="block text-kiln mb-1.5">
-                  Budget (₹):
-                </label>
-                <input
-                  type="number"
-                  required
-                  value={targetBudgetINR}
-                  onChange={(e) => setTargetBudgetINR(parseInt(e.target.value, 10) || 0)}
-                  className="w-full px-3.5 py-2.5 rounded bg-cream border border-kiln/30 text-indigo focus:outline-none focus:border-kiln"
+                  className="w-full h-11 px-3 rounded-[6px] bg-khadi border border-clay text-ink text-sm focus:outline-none focus:border-madder"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-kiln mb-1.5">
-                Describe what you'd like made:
+              <label className="block text-xs text-ink-soft uppercase tracking-wide font-medium mb-1">
+                Target budget (₹):
+              </label>
+              <input
+                type="number"
+                required
+                value={targetBudgetINR}
+                onChange={(e) => setTargetBudgetINR(parseInt(e.target.value, 10) || 0)}
+                className="w-full h-11 px-3 rounded-[6px] bg-khadi border border-clay text-ink text-sm tabular-nums focus:outline-none focus:border-madder"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-ink-soft uppercase tracking-wide font-medium mb-1">
+                Custom requirements & notes:
               </label>
               <textarea
                 rows={3}
                 required
-                placeholder="Motifs, colors, size, occasion — anything that helps the artisan picture it..."
+                placeholder="Specify dimensions, warp/weft preferences, regional motif variations..."
                 value={customBrief}
                 onChange={(e) => setCustomBrief(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded bg-cream border border-kiln/30 text-indigo focus:outline-none focus:border-kiln"
+                className="w-full p-3 rounded-[6px] bg-khadi border border-clay text-ink text-sm resize-none focus:outline-none focus:border-madder"
               />
             </div>
 
-            <div className="p-3.5 rounded bg-cream border border-kiln/20 flex items-start gap-3">
-              <ShieldCheck size={20} className="text-neem shrink-0 mt-0.5" />
-              <div className="text-base text-kiln leading-relaxed">
-                <strong className="text-neem">Secure escrow payment:</strong> your money is
-                held safely and released to the artisan only when your piece is on its way — most of
-                it goes straight to the maker.
+            <div className="p-4 rounded-[4px] bg-khadi border border-clay/70 flex items-start gap-3">
+              <ShieldCheck size={18} className="text-neem shrink-0 mt-0.5" />
+              <div className="text-xs text-ink-soft leading-relaxed">
+                <strong className="text-neem font-semibold">Direct artisan payout:</strong> 100% of material and hourly labour compensation goes directly to the weaver or sculptor upon dispatch, with Milaan's transparent 8% platform fee.
               </div>
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 rounded bg-madder text-khadi font-body text-lg transition-colors hover:bg-madder/90 flex items-center justify-center gap-2"
+              className="btn-primary w-full h-12 text-sm"
             >
               {isSubmitting ? (
-                <span>Sending your request…</span>
+                <span>Submitting request…</span>
               ) : (
                 <>
-                  <Send size={18} />
-                  <span>Send commission request</span>
+                  <Send size={16} className="mr-2" />
+                  <span>Send commission inquiry</span>
                 </>
               )}
             </button>
           </form>
         )}
-      </m.div>
+      </motion.div>
     </div>
   );
 };

@@ -28,7 +28,7 @@ export const ProblemSection: React.FC = () => {
       aria-label="Who keeps the money breakdown"
     >
       <div className="site-container">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl">
           {/* Section Header */}
           <div className="mb-12 text-left">
             <h2 className="font-heading text-3xl sm:text-4xl text-ink font-normal leading-tight">

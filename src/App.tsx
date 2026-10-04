@@ -179,7 +179,7 @@ export default function App() {
         <SmoothScroll>
           <a
             href="#artisan-vault"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2.5 focus:bg-madder focus:text-bone focus:font-semibold focus:rounded-[6px] focus:shadow-md focus:outline-none"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-madder focus:text-bone focus:font-semibold focus:rounded-[6px] focus:shadow-md focus:outline-none"
           >
             Skip to content
           </a>
@@ -251,9 +251,10 @@ export default function App() {
             <Footer />
 
             <div
-              className="fixed bottom-6 right-4 z-[60] flex flex-col gap-2 items-end pointer-events-none"
-              aria-live="polite"
+              role="region"
               aria-label="Notifications"
+              aria-live="polite"
+              className="fixed bottom-6 right-4 z-[60] flex flex-col gap-2 items-end pointer-events-none"
             >
               {toasts.map((toast) => (
                 <div

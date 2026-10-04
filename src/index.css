@@ -87,6 +87,92 @@ section[id] {
   font-variant-numeric: tabular-nums;
 }
 
+/* ─── Typography & Wrap Constraints ───────────────────────── */
+
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+  max-width: 62ch;
+}
+
+/* ─── Standardised Button Styles ──────────────────────────── */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  min-height: 44px;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  border-radius: 6px;
+  background-color: var(--color-madder);
+  color: var(--color-bone);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+.btn-primary:hover {
+  background-color: var(--color-madder-dark);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+.btn-primary:focus-visible {
+  outline: 2px solid var(--color-madder);
+  outline-offset: 2px;
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  min-height: 44px;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  border-radius: 6px;
+  background-color: rgba(248, 242, 230, 0.7);
+  border: 1px solid var(--color-clay);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  background-color: var(--color-parchment);
+  border-color: var(--color-ink-soft);
+}
+.btn-secondary:active {
+  transform: translateY(1px);
+}
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--color-madder);
+  outline-offset: 2px;
+}
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Unified Craft Imagery Grade ─────────────────────────── */
+
+.craft-grade {
+  filter: saturate(0.92) contrast(1.03) sepia(0.06);
+}
+
 /* ─── Scrollbar ───────────────────────────────────────────── */
 
 ::-webkit-scrollbar {

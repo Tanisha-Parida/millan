@@ -35,6 +35,16 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
     };
     document.addEventListener('click', onAnchor);
 
+    // Initial hash navigation
+    if (window.location.hash) {
+      setTimeout(() => {
+        const initialEl = document.querySelector(window.location.hash);
+        if (initialEl) {
+          instance.scrollTo(initialEl as HTMLElement, { offset: -72, immediate: true });
+        }
+      }, 100);
+    }
+
     return () => {
       document.removeEventListener('click', onAnchor);
       instance.destroy();

@@ -105,6 +105,8 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
             <img
               src="/images/potter-jharokha.webp"
               alt="Master artisan potter shaping clay on a traditional wheel inside a heritage sanctum"
+              width={1920}
+              height={1080}
               fetchPriority="high"
               decoding="async"
               className="w-full h-full object-cover object-center filter brightness-90 contrast-105"
@@ -151,6 +153,8 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
                 <motion.img
                   src="/images/door-left.webp"
                   alt=""
+                  width={512}
+                  height={1024}
                   aria-hidden="true"
                   decoding="async"
                   style={{ filter: doorFilter }}
@@ -168,6 +172,8 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
                 <motion.img
                   src="/images/door-right.webp"
                   alt=""
+                  width={512}
+                  height={1024}
                   aria-hidden="true"
                   decoding="async"
                   style={{ filter: doorFilter }}
@@ -183,6 +189,8 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
               src="/images/outer-frame.webp"
               className="frame-layer outer-frame"
               alt=""
+              width={1024}
+              height={1024}
               aria-hidden="true"
               fetchPriority="high"
               decoding="async"
@@ -199,7 +207,7 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
             pointerEvents: reduced ? 'auto' : uiLive ? 'auto' : 'none',
           }}
         >
-          <div className="max-w-2xl mx-auto flex flex-col items-center gap-6 mt-20 relative px-6 py-8">
+          <div className="max-w-2xl mx-auto flex flex-col items-center gap-6 mt-16 relative px-6 py-8">
             {/* Soft radial scrim behind the text for contrast without looking like a box */}
             <div
               className="absolute inset-0 -z-10 pointer-events-none rounded-full"

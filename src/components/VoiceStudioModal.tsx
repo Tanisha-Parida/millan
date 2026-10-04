@@ -1,24 +1,20 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { m } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import {
   Mic,
   MicOff,
   X,
-  Send,
   Globe,
   Camera,
   CheckCircle2,
   Loader2,
   AlertCircle,
-  ImageIcon,
-  Edit3,
 } from 'lucide-react';
 import type { CraftItem } from '../types/craft';
 import { useModalA11y } from '../hooks/useModalA11y';
 import { DIALECT_PRESETS, type DialectPreset } from '../data/dialectPresets';
 
 // ── SpeechRecognition browser types ──────────────────────────────────────────
-// These aren't in the standard TS DOM lib — declare them minimally.
 
 interface SpeechRecogResult {
   readonly transcript: string;
@@ -51,8 +47,6 @@ interface SpeechRecog extends EventTarget {
   abort(): void;
 }
 
-// ── Types ────────────────────────────────────────────────────────────────────
-
 interface VoiceStudioModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -70,17 +64,13 @@ interface GeneratedListing {
 
 type FlowStep = 'record' | 'generating' | 'review' | 'published';
 
-// ── Speech recognition language map ──────────────────────────────────────────
-
 const DIALECT_TO_LANG: Record<string, string> = {
   odia: 'or-IN',
   hindi: 'hi-IN',
   bengali: 'bn-IN',
-  santhali: 'hi-IN', // fallback — most browsers lack Santhali
+  santhali: 'hi-IN',
   english: 'en-IN',
 };
-
-// ── Simulated fallback listing (when API is unavailable) ─────────────────────
 
 function makeFallbackListing(_transcript: string, dialect: DialectPreset): GeneratedListing {
   return {
@@ -89,122 +79,115 @@ function makeFallbackListing(_transcript: string, dialect: DialectPreset): Gener
     tags: [dialect.name.split(' ')[0], 'Handmade', 'India', dialect.village],
     materials: 'Natural local materials (from artisan description)',
     suggestedPriceINR:
-      dialect.rawCostINR + dialect.hours * dialect.fairHourlyWage +
+      dialect.rawCostINR +
+      dialect.hours * dialect.fairHourlyWage +
       Math.round((dialect.rawCostINR + dialect.hours * dialect.fairHourlyWage) * 0.22),
     priceReasoning: `Materials ₹${dialect.rawCostINR} + ${dialect.hours} hours × ₹${dialect.fairHourlyWage}/hr + 22% skill premium.`,
   };
 }
 
-// ── Image resizer ────────────────────────────────────────────────────────────
-
 function resizeImage(file: File, maxDim: number): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
         let { width, height } = img;
         if (width > maxDim || height > maxDim) {
-          const scale = maxDim / Math.max(width, height);
-          width = Math.round(width * scale);
-          height = Math.round(height * scale);
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
         }
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        if (!ctx) return reject(new Error('No canvas context'));
+        if (!ctx) {
+          reject(new Error('Canvas context unavailable'));
+          return;
+        }
         ctx.drawImage(img, 0, 0, width, height);
         resolve(canvas.toDataURL('image/jpeg', 0.85));
       };
       img.onerror = reject;
-      img.src = reader.result as string;
+      img.src = e.target?.result as string;
     };
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 }
 
-// ── Web Speech API check ─────────────────────────────────────────────────────
-
-function getSpeechRecognition(): (new () => SpeechRecog) | null {
-  const w = window as unknown as {
-    SpeechRecognition?: new () => SpeechRecog;
-    webkitSpeechRecognition?: new () => SpeechRecog;
-  };
-  return w.SpeechRecognition || w.webkitSpeechRecognition || null;
+function getSpeechRecognition(): { new (): SpeechRecog } | null {
+  if (typeof window === 'undefined') return null;
+  const w = window as unknown as Record<string, unknown>;
+  return (w.SpeechRecognition || w.webkitSpeechRecognition || null) as { new (): SpeechRecog } | null;
 }
-
-// ── Component ────────────────────────────────────────────────────────────────
 
 export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
   isOpen,
   onClose,
   onPublishListing,
 }) => {
-  // State
-  const [selectedDialect, setSelectedDialect] = useState<DialectPreset>(DIALECT_PRESETS[0]);
   const [step, setStep] = useState<FlowStep>('record');
-  const [transcript, setTranscript] = useState('');
+  const [selectedDialect, setSelectedDialect] = useState<DialectPreset>(DIALECT_PRESETS[0]);
   const [isRecording, setIsRecording] = useState(false);
+  const [transcript, setTranscript] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [listing, setListing] = useState<GeneratedListing | null>(null);
-  const [isOffline, setIsOffline] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [speechSupported, setSpeechSupported] = useState(true);
 
-  // Editable listing fields
+  // Editable fields in review step
   const [editTitle, setEditTitle] = useState('');
   const [editDesc, setEditDesc] = useState('');
   const [editMaterials, setEditMaterials] = useState('');
-  const [editPrice, setEditPrice] = useState(0);
+  const [editPrice, setEditPrice] = useState<number>(0);
 
   const recognitionRef = useRef<SpeechRecog | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const panelRef = useModalA11y(isOpen, onClose);
 
-  // Check speech support on mount
-  useEffect(() => {
-    setSpeechSupported(!!getSpeechRecognition());
-  }, []);
+  const speechSupported = typeof window !== 'undefined' && getSpeechRecognition() !== null;
 
-  // Waveform animation
+  // Visualizer loop for waveform
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let animationId: number;
-    let phase = 0;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const renderWave = () => {
-      const width = canvas.width;
-      const height = canvas.height;
+      const { width, height } = canvas;
       ctx.clearRect(0, 0, width, height);
-
-      const bars = 36;
-      const barWidth = width / bars - 2;
-      phase += 0.08;
+      const bars = 28;
+      const barWidth = 4;
+      const spacing = (width - bars * barWidth) / (bars - 1);
 
       for (let i = 0; i < bars; i++) {
-        const baseAmp = isRecording ? Math.sin(phase + i * 0.4) * 0.5 + 0.5 : 0.15;
-        const noise = isRecording ? Math.random() * 0.35 : 0.05;
-        const totalAmp = Math.min(1, baseAmp + noise);
-        const barHeight = Math.max(4, totalAmp * (height * 0.85));
-        const x = i * (barWidth + 2);
+        const x = i * (barWidth + spacing);
+        let barHeight: number;
+        if (isRecording) {
+          const t = Date.now() / 150 + i * 0.4;
+          barHeight = Math.max(6, Math.abs(Math.sin(t)) * (height * 0.75));
+        } else {
+          barHeight = 4;
+        }
         const y = (height - barHeight) / 2;
-
-        ctx.fillStyle = isRecording ? '#B23A2E' : '#6B3414';
+        ctx.fillStyle = isRecording ? '#A8402F' : '#C9B79C';
         ctx.beginPath();
         ctx.rect(x, y, barWidth, barHeight);
         ctx.fill();
       }
 
-      if (!prefersReducedMotion) {
+      if (!prefersReducedMotion && isRecording) {
         animationId = requestAnimationFrame(renderWave);
       }
     };
@@ -212,8 +195,6 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
     renderWave();
     return () => cancelAnimationFrame(animationId);
   }, [isRecording]);
-
-  // ── Recording ──────────────────────────────────────────────────────────────
 
   const startRecording = useCallback(() => {
     const SR = getSpeechRecognition();
@@ -238,10 +219,9 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
     };
 
     recognition.onerror = (event: SpeechRecogErrorEvent) => {
-      console.warn('Speech error:', event.error);
       setIsRecording(false);
       if (event.error === 'not-allowed') {
-        setErrorMsg('Microphone access was denied. You can type instead.');
+        setErrorMsg('Microphone access was denied. You can type your description instead.');
       }
     };
 
@@ -258,8 +238,6 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
     setIsRecording(false);
   }, []);
 
-  // ── Photo ──────────────────────────────────────────────────────────────────
-
   const handlePhotoSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -268,29 +246,25 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
       setPhotoPreview(resized);
       setPhotoBase64(resized);
     } catch {
-      setErrorMsg('Could not load the photo. Try a different image.');
+      setErrorMsg('Could not load the photo. Please try a different image.');
     }
   }, []);
-
-  // ── Generate listing ───────────────────────────────────────────────────────
 
   const generateListing = useCallback(async () => {
     const text = transcript.trim();
     if (text.length < 3) {
-      setErrorMsg('Please say or type a description first.');
+      setErrorMsg('Please describe your craft first by speaking or typing.');
       return;
     }
 
     setStep('generating');
     setErrorMsg(null);
-    setIsOffline(false);
 
     try {
       const body: { transcript: string; language: string; imageBase64?: string } = {
         transcript: text,
         language: DIALECT_TO_LANG[selectedDialect.id] || 'unknown',
       };
-
       if (photoBase64) {
         body.imageBase64 = photoBase64;
       }
@@ -312,33 +286,24 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
         return;
       }
 
-      // API failed — fall back
-      const errBody = (await res.json().catch(() => ({}))) as { error?: string; offline?: boolean };
-      console.warn('API error:', errBody.error);
-
-      // Use fallback
+      // Fallback if API fails
       const fallback = makeFallbackListing(text, selectedDialect);
       setListing(fallback);
       setEditTitle(fallback.title);
       setEditDesc(fallback.description);
       setEditMaterials(fallback.materials);
       setEditPrice(fallback.suggestedPriceINR);
-      setIsOffline(true);
       setStep('review');
-    } catch (err) {
-      console.warn('Network error:', err);
+    } catch {
       const fallback = makeFallbackListing(text, selectedDialect);
       setListing(fallback);
       setEditTitle(fallback.title);
       setEditDesc(fallback.description);
       setEditMaterials(fallback.materials);
       setEditPrice(fallback.suggestedPriceINR);
-      setIsOffline(true);
       setStep('review');
     }
   }, [transcript, selectedDialect, photoBase64]);
-
-  // ── Publish ────────────────────────────────────────────────────────────────
 
   const handlePublish = useCallback(() => {
     if (!listing) return;
@@ -346,14 +311,14 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
     const newItem: CraftItem = {
       id: `CRAFT-${Date.now().toString().slice(-6)}`,
       title: editTitle || listing.title,
-      category: listing.tags[0] || 'Handmade',
-      subCategory: 'Voice listed',
+      category: listing.tags[0] || 'Textiles & Handloom',
+      subCategory: 'Artisan voice listing',
       region: selectedDialect.village,
-      state: 'India',
-      image: photoPreview || selectedDialect.previewImage,
+      state: selectedDialect.id === 'odia' ? 'Odisha' : selectedDialect.id === 'bengali' ? 'West Bengal' : 'India',
+      image: photoPreview || '/images/potter-jharokha.webp',
       priceINR: editPrice || listing.suggestedPriceINR,
       artisan: selectedDialect.artisanName,
-      lineage: `${selectedDialect.name} tradition`,
+      lineage: 'Master artisan lineage',
       hoursToCraft: selectedDialect.hours,
       materials: editMaterials || listing.materials,
       audioNarrative: {
@@ -366,11 +331,16 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
     onPublishListing?.(newItem);
     setStep('published');
   }, [
-    listing, editTitle, editDesc, editMaterials, editPrice,
-    transcript, selectedDialect, photoPreview, onPublishListing,
+    listing,
+    editTitle,
+    editDesc,
+    editMaterials,
+    editPrice,
+    transcript,
+    selectedDialect,
+    photoPreview,
+    onPublishListing,
   ]);
-
-  // ── Reset ──────────────────────────────────────────────────────────────────
 
   const resetFlow = useCallback(() => {
     setStep('record');
@@ -378,7 +348,6 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
     setPhotoPreview(null);
     setPhotoBase64(null);
     setListing(null);
-    setIsOffline(false);
     setErrorMsg(null);
   }, []);
 
@@ -386,320 +355,259 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-indigo/80 backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-vat/80 backdrop-blur-sm overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <m.div
+      <motion.div
         ref={panelRef}
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label="List a craft by speaking"
-        initial={{ opacity: 0, scale: 0.94, y: 30 }}
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 30 }}
-        className="relative w-full max-w-3xl my-auto rounded bg-khadi p-5 sm:p-8 shadow-xl text-left overflow-hidden focus:outline-none"
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="relative w-full max-w-2xl my-auto rounded-[4px] bg-parchment border border-clay p-6 sm:p-8 shadow-xl text-left overflow-hidden focus:outline-none"
       >
-        {/* Close button */}
+        {/* Close Button */}
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 w-9 h-9 rounded bg-cream border border-kiln/20 text-indigo hover:text-madder flex items-center justify-center transition-colors z-20"
-          aria-label="Close"
+          className="absolute top-4 right-4 w-10 h-10 rounded-[6px] bg-khadi border border-clay text-ink hover:text-madder flex items-center justify-center transition-colors cursor-pointer"
+          aria-label="Close modal"
         >
           <X size={18} />
         </button>
 
         {/* Header */}
-        <div className="flex items-center gap-3 border-b border-kiln/15 pb-5 mb-6">
-          <div className="w-11 h-11 rounded bg-madder flex items-center justify-center text-khadi shrink-0">
+        <div className="flex items-center gap-4 border-b border-clay/40 pb-4 mb-6">
+          <div className="w-12 h-12 rounded-[6px] bg-madder flex items-center justify-center text-bone shrink-0 shadow-xs">
             <Mic size={22} />
           </div>
           <div>
-            <h3 className="font-display text-2xl text-indigo">List a craft by speaking</h3>
-            <p className="text-sm text-kiln mt-0.5">
-              Describe your craft in your own language. We turn it into a listing.
+            <h3 className="font-heading text-2xl text-ink font-semibold">
+              List a craft by speaking
+            </h3>
+            <p className="text-sm text-ink-soft mt-0.5">
+              Describe your work in your native tongue. We compute fair pricing and build the listing.
             </p>
           </div>
         </div>
 
         {/* ─── Step 1: Record ──────────────────────────────────────────── */}
         {step === 'record' && (
-          <div className="space-y-5">
-            {/* Language selector */}
+          <div className="space-y-6">
+            {/* Language Selector */}
             <div className="space-y-2">
-              <label className="text-sm text-kiln flex items-center gap-1.5">
-                <Globe size={15} />
-                <span>Language:</span>
+              <label className="text-xs text-ink-soft font-medium flex items-center gap-1.5 uppercase tracking-wide">
+                <Globe size={14} />
+                <span>Dialect preset:</span>
               </label>
               <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                 {DIALECT_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
+                    type="button"
                     onClick={() => {
                       setSelectedDialect(preset);
                       setTranscript('');
                       setErrorMsg(null);
                     }}
-                    className={`px-3 py-1.5 rounded text-sm transition-colors whitespace-nowrap ${
+                    className={`h-9 px-3 rounded-[6px] text-xs font-body transition-colors whitespace-nowrap cursor-pointer ${
                       selectedDialect.id === preset.id
-                        ? 'bg-madder text-khadi'
-                        : 'bg-cream text-indigo border border-kiln/20 hover:border-kiln/40'
+                        ? 'bg-madder text-bone font-semibold'
+                        : 'bg-khadi text-ink border border-clay hover:bg-clay/20'
                     }`}
                   >
-                    {preset.nativeLabel}
+                    {preset.nativeLabel} ({preset.name.split(' ')[0]})
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Recording / Text input area */}
-            <div className="p-4 rounded bg-cream border border-kiln/20 space-y-3">
-              {speechSupported ? (
-                <>
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm text-kiln">
-                      {isRecording
-                        ? 'Listening — speak now...'
-                        : transcript
-                          ? 'Tap the mic to re-record, or edit the text below.'
-                          : 'Tap the microphone and describe your craft.'}
-                    </p>
-                    <button
-                      onClick={isRecording ? stopRecording : startRecording}
-                      className={`px-4 py-2 rounded text-sm flex items-center gap-2 transition-colors shrink-0 ${
-                        isRecording
-                          ? 'bg-red-600 text-white'
-                          : 'bg-madder text-khadi hover:bg-madder/90'
-                      }`}
-                    >
-                      {isRecording ? (
-                        <>
-                          <MicOff size={16} />
-                          <span>Stop</span>
-                        </>
-                      ) : (
-                        <>
-                          <Mic size={16} />
-                          <span>Record</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Waveform */}
-                  <div className="w-full h-12 rounded bg-khadi border border-kiln/15 p-1.5 overflow-hidden">
-                    <canvas ref={canvasRef} width={680} height={48} className="w-full h-full" />
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-kiln">
-                  Your browser does not support voice input. Type your description below instead.
+            {/* Recording & Input Area */}
+            <div className="p-4 rounded-[4px] bg-khadi border border-clay space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs text-ink-soft">
+                  {isRecording
+                    ? 'Listening... speak clearly into your microphone.'
+                    : transcript
+                      ? 'Transcript captured. Edit or re-record below.'
+                      : 'Press Record to speak, or type directly.'}
                 </p>
+                {speechSupported && (
+                  <button
+                    type="button"
+                    onClick={isRecording ? stopRecording : startRecording}
+                    className={`h-10 px-4 rounded-[6px] text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer shrink-0 ${
+                      isRecording
+                        ? 'bg-madder-dark text-bone animate-pulse'
+                        : 'bg-madder hover:bg-madder-dark text-bone'
+                    }`}
+                  >
+                    {isRecording ? <MicOff size={15} /> : <Mic size={15} />}
+                    <span>{isRecording ? 'Stop' : 'Record'}</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Waveform Canvas */}
+              {speechSupported && (
+                <div className="w-full h-10 rounded-[4px] bg-parchment border border-clay/50 p-1 overflow-hidden">
+                  <canvas ref={canvasRef} width={640} height={40} className="w-full h-full" />
+                </div>
               )}
 
-              {/* Editable transcript */}
+              {/* Textarea */}
               <textarea
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
-                placeholder={
-                  speechSupported
-                    ? 'Your speech will appear here. You can also type directly...'
-                    : 'Describe your craft — materials, time, technique...'
-                }
+                placeholder="Describe the craft, materials, hours spent on the loom, and techniques..."
                 rows={3}
-                className="w-full bg-khadi border border-kiln/20 rounded px-3 py-2 text-indigo text-base placeholder:text-kiln/50 resize-none focus:outline-none focus:border-madder"
+                className="w-full bg-parchment border border-clay rounded-[6px] p-3 text-ink text-sm placeholder:text-ink-soft/60 resize-none focus:outline-none focus:border-madder"
               />
             </div>
 
-            {/* Photo upload */}
+            {/* Photo Attachment */}
             <div className="space-y-2">
-              <label className="text-sm text-kiln flex items-center gap-1.5">
-                <Camera size={15} />
-                <span>Attach a photo (optional):</span>
+              <label className="text-xs text-ink-soft font-medium flex items-center gap-1.5 uppercase tracking-wide">
+                <Camera size={14} />
+                <span>Craft photograph (optional):</span>
               </label>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handlePhotoSelect}
-                className="sr-only"
-                aria-label="Upload craft photo"
-              />
-
-              {photoPreview ? (
-                <div className="relative inline-block">
-                  <img
-                    src={photoPreview}
-                    alt="Craft photo preview"
-                    className="w-32 h-32 object-cover rounded border border-kiln/20"
-                  />
-                  <button
-                    onClick={() => {
-                      setPhotoPreview(null);
-                      setPhotoBase64(null);
-                    }}
-                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-madder text-khadi flex items-center justify-center text-xs"
-                    aria-label="Remove photo"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ) : (
+              <div className="flex items-center gap-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoSelect}
+                  className="hidden"
+                />
                 <button
+                  type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded bg-cream border border-kiln/20 text-indigo text-sm hover:border-kiln/40 transition-colors"
+                  className="btn-secondary h-11 text-xs"
                 >
-                  <ImageIcon size={16} className="text-kiln" />
-                  <span>Choose photo</span>
+                  <Camera size={14} className="mr-2" />
+                  <span>{photoPreview ? 'Change photo' : 'Upload photo'}</span>
                 </button>
-              )}
+                {photoPreview && (
+                  <div className="w-11 h-11 rounded-[4px] overflow-hidden border border-clay shrink-0">
+                    <img
+                      src={photoPreview}
+                      alt="Craft preview"
+                      width={44}
+                      height={44}
+                      className="w-full h-full object-cover craft-grade"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Error */}
             {errorMsg && (
-              <div className="flex items-start gap-2 p-3 rounded bg-madder/10 border border-madder/30 text-sm text-madder">
-                <AlertCircle size={16} className="shrink-0 mt-0.5" />
+              <div className="p-3 rounded-[4px] bg-madder/10 border border-madder/30 text-madder text-xs flex items-center gap-2">
+                <AlertCircle size={15} className="shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
-            {/* Generate button */}
-            <button
-              onClick={generateListing}
-              disabled={transcript.trim().length < 3}
-              className="w-full py-3 rounded bg-madder text-khadi text-base font-semibold flex items-center justify-center gap-2 transition-colors hover:bg-madder/90 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Send size={16} />
-              <span>Generate listing</span>
-            </button>
-
-            <p className="text-xs text-kiln text-center">
-              This is a prototype. The listing is generated by AI and may need editing.
-            </p>
+            {/* Actions */}
+            <div className="flex justify-end gap-3 pt-2">
+              <button type="button" onClick={onClose} className="btn-secondary h-11 text-xs">
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={generateListing}
+                disabled={transcript.trim().length === 0}
+                className="btn-primary h-11 text-xs"
+              >
+                Generate listing
+              </button>
+            </div>
           </div>
         )}
 
         {/* ─── Step 2: Generating ──────────────────────────────────────── */}
         {step === 'generating' && (
-          <div className="flex flex-col items-center justify-center py-16 space-y-4">
-            <Loader2 size={32} className="text-madder animate-spin" />
-            <p className="text-lg text-indigo font-display">Creating your listing...</p>
-            <p className="text-sm text-kiln">
-              The AI is reading your description
-              {photoBase64 ? ' and photo' : ''} to build a listing.
+          <div className="py-16 text-center space-y-4">
+            <Loader2 size={36} className="animate-spin text-madder mx-auto" />
+            <h4 className="font-heading text-xl text-ink font-semibold">
+              Translating and computing fair price...
+            </h4>
+            <p className="text-xs text-ink-soft max-w-sm mx-auto">
+              Analyzing vernacular dialect, estimating raw material values, and setting transparent artisan compensation.
             </p>
           </div>
         )}
 
-        {/* ─── Step 3: Review & edit ───────────────────────────────────── */}
+        {/* ─── Step 3: Review & Edit ────────────────────────────────────── */}
         {step === 'review' && listing && (
-          <div className="space-y-5">
-            {/* Offline notice */}
-            {isOffline && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded bg-haldi/15 border border-haldi/30 text-sm text-kiln">
-                <AlertCircle size={15} className="text-haldi shrink-0" />
-                <span>Offline example — connect the Gemini API for real listings.</span>
-              </div>
-            )}
-
-            <div className="flex items-center gap-2 text-sm text-kiln">
-              <Edit3 size={15} />
-              <span>Review and edit your listing before publishing:</span>
-            </div>
-
-            {/* Editable listing card */}
-            <div className="p-5 rounded bg-cream border border-kiln/20 space-y-4">
-              {/* Photo + Title row */}
-              <div className="flex gap-4">
-                {photoPreview && (
-                  <img
-                    src={photoPreview}
-                    alt="Craft photo"
-                    className="w-24 h-24 object-cover rounded border border-kiln/15 shrink-0"
-                  />
-                )}
-                <div className="flex-1 space-y-2">
-                  <label className="text-xs text-kiln">Title</label>
-                  <input
-                    type="text"
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    className="w-full bg-khadi border border-kiln/20 rounded px-3 py-1.5 text-indigo font-display text-lg focus:outline-none focus:border-madder"
-                  />
-                </div>
+          <div className="space-y-6 text-left">
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-ink-soft font-medium uppercase tracking-wide block mb-1">
+                  Listing title
+                </label>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full h-11 bg-khadi border border-clay rounded-[6px] px-3 text-sm text-ink font-medium focus:outline-none focus:border-madder"
+                />
               </div>
 
-              {/* Description */}
-              <div className="space-y-1">
-                <label className="text-xs text-kiln">Description</label>
+              <div>
+                <label className="text-xs text-ink-soft font-medium uppercase tracking-wide block mb-1">
+                  English translation & description
+                </label>
                 <textarea
                   value={editDesc}
                   onChange={(e) => setEditDesc(e.target.value)}
                   rows={2}
-                  className="w-full bg-khadi border border-kiln/20 rounded px-3 py-1.5 text-indigo text-base resize-none focus:outline-none focus:border-madder"
+                  className="w-full bg-khadi border border-clay rounded-[6px] p-3 text-sm text-ink focus:outline-none focus:border-madder"
                 />
               </div>
 
-              {/* Materials */}
-              <div className="space-y-1">
-                <label className="text-xs text-kiln">Materials</label>
-                <input
-                  type="text"
-                  value={editMaterials}
-                  onChange={(e) => setEditMaterials(e.target.value)}
-                  className="w-full bg-khadi border border-kiln/20 rounded px-3 py-1.5 text-indigo text-base focus:outline-none focus:border-madder"
-                />
-              </div>
-
-              {/* Tags */}
-              <div className="space-y-1">
-                <label className="text-xs text-kiln">Tags</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {listing.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="px-2 py-0.5 rounded bg-khadi border border-kiln/15 text-sm text-indigo"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price */}
-              <div className="flex items-end gap-4 pt-2 border-t border-kiln/15">
-                <div className="space-y-1">
-                  <label className="text-xs text-kiln">Suggested price (₹)</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-ink-soft font-medium uppercase tracking-wide block mb-1">
+                    Materials used
+                  </label>
                   <input
-                    type="number"
-                    value={editPrice}
-                    onChange={(e) => setEditPrice(Number(e.target.value))}
-                    min={1}
-                    className="w-36 bg-khadi border border-kiln/20 rounded px-3 py-1.5 text-indigo text-lg font-display focus:outline-none focus:border-madder"
+                    type="text"
+                    value={editMaterials}
+                    onChange={(e) => setEditMaterials(e.target.value)}
+                    className="w-full h-11 bg-khadi border border-clay rounded-[6px] px-3 text-sm text-ink focus:outline-none focus:border-madder"
                   />
                 </div>
-                <p className="text-xs text-kiln flex-1">{listing.priceReasoning}</p>
+                <div>
+                  <label className="text-xs text-ink-soft font-medium uppercase tracking-wide block mb-1">
+                    Suggested buyer price (₹)
+                  </label>
+                  <input
+                    type="number"
+                    value={editPrice || ''}
+                    onChange={(e) => setEditPrice(parseInt(e.target.value, 10) || 0)}
+                    className="w-full h-11 bg-khadi border border-clay rounded-[6px] px-3 text-sm text-ink font-semibold tabular-nums focus:outline-none focus:border-madder"
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 bg-khadi/70 border border-clay/60 rounded-[4px] text-xs text-ink-soft">
+                <span className="font-semibold text-ink">Price rationale: </span>
+                <span>{listing.priceReasoning}</span>
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handlePublish}
-                className="flex-1 py-3 rounded bg-madder text-khadi text-base font-semibold flex items-center justify-center gap-2 hover:bg-madder/90 transition-colors"
-              >
-                <Send size={16} />
-                <span>Publish to crafts</span>
+            <div className="flex justify-end gap-3 pt-3 border-t border-clay/40">
+              <button type="button" onClick={resetFlow} className="btn-secondary h-11 text-xs">
+                Back
               </button>
-              <button
-                onClick={resetFlow}
-                className="px-4 py-3 rounded bg-khadi border border-kiln/20 text-indigo text-sm hover:bg-cream transition-colors"
-              >
-                Start over
+              <button type="button" onClick={handlePublish} className="btn-primary h-11 text-xs">
+                Publish to marketplace
               </button>
             </div>
           </div>
@@ -707,34 +615,39 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
 
         {/* ─── Step 4: Published ───────────────────────────────────────── */}
         {step === 'published' && (
-          <div className="flex flex-col items-center justify-center py-12 space-y-4 text-center">
-            <div className="w-14 h-14 rounded-full bg-neem/15 flex items-center justify-center">
-              <CheckCircle2 size={28} className="text-neem" />
+          <div className="py-8 text-center space-y-6">
+            <CheckCircle2 size={44} className="text-neem mx-auto" />
+            <div>
+              <h4 className="font-heading text-2xl text-ink font-semibold">
+                Listing successfully published!
+              </h4>
+              <p className="text-xs text-ink-soft mt-1">
+                Your craft is now live in the Milaan catalog with direct-to-artisan checkout.
+              </p>
             </div>
-            <h4 className="font-display text-2xl text-indigo">
-              Published to crafts
-            </h4>
-            <p className="text-sm text-kiln max-w-sm">
-              Your listing is now visible in the crafts section. In a real deployment
-              it would be searchable by buyers.
-            </p>
-            <div className="flex items-center gap-3 pt-2">
-              <button
-                onClick={resetFlow}
-                className="px-5 py-2.5 rounded bg-madder text-khadi text-sm font-semibold hover:bg-madder/90 transition-colors"
-              >
+
+            <div className="p-4 bg-khadi border border-clay rounded-[4px] max-w-sm mx-auto text-left">
+              <div className="text-xs text-madder font-semibold mb-1">Live listing</div>
+              <div className="font-heading text-lg text-ink font-semibold">{editTitle}</div>
+              <div className="text-xs text-ink-soft mt-1">
+                {selectedDialect.village}
+              </div>
+              <div className="text-sm font-bold text-ink mt-2">
+                ₹{editPrice.toLocaleString('en-IN')}
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-3 pt-2">
+              <button type="button" onClick={resetFlow} className="btn-secondary h-11 text-xs">
                 List another craft
               </button>
-              <button
-                onClick={onClose}
-                className="px-5 py-2.5 rounded bg-cream border border-kiln/20 text-indigo text-sm hover:bg-khadi transition-colors"
-              >
+              <button type="button" onClick={onClose} className="btn-primary h-11 text-xs">
                 Done
               </button>
             </div>
           </div>
         )}
-      </m.div>
+      </motion.div>
     </div>
   );
 };

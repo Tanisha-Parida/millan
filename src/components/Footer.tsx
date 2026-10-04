@@ -27,7 +27,7 @@ export const Footer: React.FC = () => {
       />
 
       <div className="site-container pt-16 pb-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-bone/15">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-12 border-b border-bone/15">
           {/* Left Column: Wordmark + Dual Language Tagline + Mission */}
           <div className="md:col-span-6 space-y-4">
             <div className="flex items-baseline gap-2">

@@ -228,7 +228,7 @@ export const ArtisanVaultGrid: React.FC<ArtisanVaultGridProps> = ({
               <h2 className="font-heading text-3xl sm:text-4xl text-ink font-normal leading-tight">
                 Crafts
               </h2>
-              <p className="text-base text-ink-soft max-w-xl mt-2 font-body leading-relaxed">
+              <p className="text-base text-ink-soft max-w-xl mt-2 font-body leading-relaxed max-w-[62ch]">
                 Browse India's living craft traditions. Every piece comes directly from the maker's workshop, with fair pay accounted for.
               </p>
             </div>
@@ -245,13 +245,13 @@ export const ArtisanVaultGrid: React.FC<ArtisanVaultGridProps> = ({
                 placeholder="Search crafts, regions, or materials..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-10 pr-9 bg-parchment border border-clay rounded-[6px] text-sm text-ink placeholder-ink-soft/70 focus:outline-none focus:border-madder transition-colors"
+                className="w-full h-11 pl-10 pr-8 bg-parchment border border-clay rounded-[6px] text-sm text-ink placeholder-ink-soft/70 focus:outline-none focus:border-madder transition-colors"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink cursor-pointer"
                   aria-label="Clear search"
                 >
                   <X size={14} />
@@ -261,75 +261,99 @@ export const ArtisanVaultGrid: React.FC<ArtisanVaultGridProps> = ({
           </div>
         </div>
 
-        {/* 2. Main Workflow: Level 1, Level 2, or Level 3 */}
+        {/* 2. Main Workflow: Search Results, Empty State, or Level 1/2/3 */}
         <div>
           {!catalog ? (
             <div className="py-24 text-center font-body text-sm text-ink flex items-center justify-center gap-3">
               <span>Loading artisan craft catalog...</span>
             </div>
-          ) : searchQuery.trim() && activeView === 'categories' && globalSearchMatches.length > 0 ? (
-            /* Global Search Matches View */
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="font-heading text-xl text-ink font-semibold">
-                  Found {globalSearchMatches.length}{' '}
-                  {globalSearchMatches.length === 1 ? 'piece' : 'pieces'} matching "{searchQuery}"
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="text-xs font-body text-madder hover:underline cursor-pointer"
-                >
-                  Clear search
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {globalSearchMatches.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-khadi border border-clay rounded-[4px] overflow-hidden p-4 space-y-3"
+          ) : searchQuery.trim() && activeView === 'categories' ? (
+            globalSearchMatches.length > 0 ? (
+              /* Global Search Matches View */
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-heading text-xl text-ink font-semibold">
+                    Found {globalSearchMatches.length}{' '}
+                    {globalSearchMatches.length === 1 ? 'piece' : 'pieces'} matching "{searchQuery}"
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="text-xs font-body text-madder hover:underline cursor-pointer"
                   >
-                    <div className="aspect-[4/3] overflow-hidden relative rounded-[2px] bg-parchment">
-                      <img
-                        src={item.image}
-                        alt={`${item.title} handcrafted in ${item.state}`}
-                        style={{
-                          filter: 'saturate(0.92) contrast(1.03) sepia(0.06)',
-                        }}
-                        className="w-full h-full object-cover"
-                      />
-                      <span className="absolute bottom-2 left-2 bg-parchment/95 px-2 py-0.5 rounded-[4px] text-xs font-body text-ink border border-clay/60">
-                        {item.state}
-                      </span>
+                    Clear search
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {globalSearchMatches.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-khadi border border-clay rounded-[4px] overflow-hidden p-4 space-y-3"
+                    >
+                      <div className="aspect-[4/3] overflow-hidden relative rounded-[2px] bg-parchment">
+                        <img
+                          src={item.image}
+                          alt={`${item.title} handcrafted in ${item.state}`}
+                          width={400}
+                          height={300}
+                          loading="lazy"
+                          style={{
+                            filter: 'saturate(0.92) contrast(1.03) sepia(0.06)',
+                          }}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute bottom-2 left-2 bg-parchment/95 px-2 py-0.5 rounded-[4px] text-xs font-body text-ink border border-clay/60">
+                          {item.state}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs font-body text-ink-soft">
+                          {item.category}
+                        </span>
+                        <h4 className="font-heading text-lg text-ink font-semibold mt-0.5">
+                          {item.title}
+                        </h4>
+                        <p className="text-xs text-ink-soft line-clamp-2 mt-1 font-body">
+                          {item.materials}
+                        </p>
+                      </div>
+                      <div className="pt-3 border-t border-clay/30 flex items-center justify-between">
+                        <span className="font-body font-bold text-ink text-sm tabular-nums">
+                          {formatPrice(item.priceINR, activeCurrency)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setActiveLivingLabel(item)}
+                          className="text-xs px-3 py-1.5 rounded-[6px] bg-parchment border border-clay text-ink font-medium hover:bg-clay/20 font-body transition-colors cursor-pointer"
+                        >
+                          Story
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-xs font-body text-ink-soft">
-                        {item.category}
-                      </span>
-                      <h4 className="font-heading text-lg text-ink font-semibold mt-0.5">
-                        {item.title}
-                      </h4>
-                      <p className="text-xs text-ink-soft line-clamp-2 mt-1 font-body">
-                        {item.materials}
-                      </p>
-                    </div>
-                    <div className="pt-2 border-t border-clay/30 flex items-center justify-between">
-                      <span className="font-body font-bold text-ink text-sm tabular-nums">
-                        {formatPrice(item.priceINR, activeCurrency)}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setActiveLivingLabel(item)}
-                        className="text-xs px-3 py-1.5 rounded-[6px] bg-parchment border border-clay text-ink font-medium hover:bg-clay/20 font-body transition-colors cursor-pointer"
-                      >
-                        Story
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : (
+              /* Search Empty State: guides user on what to try next */
+              <div className="py-16 px-6 text-center bg-parchment border border-clay rounded-[4px] space-y-4 max-w-xl mx-auto">
+                <h3 className="font-heading text-2xl text-ink font-semibold">
+                  No crafts found matching "{searchQuery}"
+                </h3>
+                <p className="text-sm text-ink-soft leading-relaxed max-w-md mx-auto">
+                  Try searching for craft traditions like <strong className="text-ink font-semibold">"Ikat"</strong>, <strong className="text-ink font-semibold">"Pattachitra"</strong>, <strong className="text-ink font-semibold">"Dhokra"</strong>, or browse by craft category below.
+                </p>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="btn-primary h-11 text-xs"
+                  >
+                    Clear search & browse categories
+                  </button>
+                </div>
+              </div>
+            )
           ) : (
             <AnimatePresence mode="wait">
               {activeView === 'categories' && (

@@ -89,7 +89,7 @@ export const IndiaInteractiveMap: React.FC<IndiaInteractiveMapProps> = ({
                 key={region}
                 type="button"
                 onClick={() => setActiveRegionFilter(region)}
-                className={`px-3 py-1.5 rounded-[6px] transition-colors cursor-pointer text-xs font-medium ${
+                className={`min-h-[44px] inline-flex items-center justify-center px-4 py-2 rounded-[6px] transition-colors cursor-pointer text-xs font-medium ${
                   activeRegionFilter === region
                     ? 'bg-madder text-bone font-semibold'
                     : 'bg-vat/80 text-bone/80 border border-clay/40 hover:bg-vat hover:text-bone'
@@ -112,7 +112,7 @@ export const IndiaInteractiveMap: React.FC<IndiaInteractiveMapProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search state or craft..."
-            className="w-full h-11 pl-10 pr-9 rounded-[6px] bg-parchment text-ink placeholder-ink-soft/70 border border-clay text-xs font-body focus:outline-none focus:border-madder"
+            className="w-full h-11 pl-10 pr-8 rounded-[6px] bg-parchment text-ink placeholder-ink-soft/70 border border-clay text-xs font-body focus:outline-none focus:border-madder"
           />
           {searchQuery && (
             <button
@@ -144,6 +144,10 @@ export const IndiaInteractiveMap: React.FC<IndiaInteractiveMapProps> = ({
               <img
                 src="/images/india-constellation-map.webp"
                 alt="Interactive craft map of India"
+                width={1024}
+                height={1007}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-contain select-none pointer-events-none"
               />
             </div>
@@ -234,7 +238,7 @@ export const IndiaInteractiveMap: React.FC<IndiaInteractiveMapProps> = ({
                   key={dossier.id}
                   type="button"
                   onClick={() => setSelectedStateId(dossier.id)}
-                  className={`text-xs font-body px-3 py-1.5 rounded-[6px] transition-colors cursor-pointer ${
+                  className={`min-h-[44px] inline-flex items-center justify-center text-xs font-body px-4 py-2 rounded-[6px] transition-colors cursor-pointer ${
                     isSelected
                       ? 'bg-madder text-bone font-semibold'
                       : 'bg-vat/60 text-bone/80 border border-clay/40 hover:bg-vat hover:text-bone'
@@ -256,18 +260,18 @@ export const IndiaInteractiveMap: React.FC<IndiaInteractiveMapProps> = ({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -15 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="p-6 sm:p-7 bg-parchment text-ink border border-clay rounded-[4px] shadow-md space-y-6"
+              className="p-6 sm:p-8 bg-parchment text-ink border border-clay rounded-[4px] shadow-md space-y-6"
             >
               {/* Header with region tag & maker count */}
               <div>
                 <div className="flex items-center justify-between gap-3 mb-2">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-khadi rounded-[4px] text-ink-soft text-xs font-body">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-khadi rounded-[4px] text-ink-soft text-xs font-body">
                     <MapPin size={13} className="text-madder" />
                     <span>{selectedDossier.region} India</span>
                   </div>
 
                   {stateMakerCount > 0 ? (
-                    <div className="text-xs font-body font-semibold text-neem bg-neem/10 border border-neem/30 px-2.5 py-1 rounded-[4px]">
+                    <div className="text-xs font-body font-semibold text-neem bg-neem/10 border border-neem/30 px-2 py-1 rounded-[4px]">
                       {stateMakerCount} {stateMakerCount === 1 ? 'maker' : 'makers'} listed
                     </div>
                   ) : (
@@ -281,7 +285,7 @@ export const IndiaInteractiveMap: React.FC<IndiaInteractiveMapProps> = ({
                   {selectedDossier.name}
                 </h3>
 
-                <p className="text-sm text-ink-soft font-body leading-relaxed mt-2.5 pb-4 border-b border-clay/40">
+                <p className="text-sm text-ink-soft font-body leading-relaxed mt-2 pb-4 border-b border-clay/40">
                   {selectedDossier.summary}
                 </p>
               </div>
@@ -351,7 +355,7 @@ export const IndiaInteractiveMap: React.FC<IndiaInteractiveMapProps> = ({
                 <button
                   type="button"
                   onClick={handleExploreArtisans}
-                  className="w-full h-11 rounded-[6px] bg-madder hover:bg-madder-dark text-bone font-medium text-sm flex items-center justify-center transition-colors cursor-pointer"
+                  className="btn-primary w-full h-12 text-sm"
                 >
                   Explore {selectedDossier.name} crafts
                 </button>

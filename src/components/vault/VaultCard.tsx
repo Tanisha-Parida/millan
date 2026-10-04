@@ -41,6 +41,8 @@ export const VaultCard: React.FC<VaultCardProps> = ({
           <img
             src={product.image}
             alt={`${product.title} handcrafted in ${product.region}, ${product.state}`}
+            width={400}
+            height={300}
             loading="lazy"
             decoding="async"
             style={{
@@ -53,7 +55,7 @@ export const VaultCard: React.FC<VaultCardProps> = ({
           <button
             type="button"
             onClick={() => onToggleWishlist(product.id)}
-            className={`absolute top-2.5 right-2.5 w-8 h-8 rounded-[6px] flex items-center justify-center transition-colors cursor-pointer ${
+            className={`absolute top-2 right-2 w-8 h-8 rounded-[6px] flex items-center justify-center transition-colors cursor-pointer ${
               isSaved
                 ? 'bg-madder text-bone'
                 : 'bg-parchment/90 text-ink hover:text-madder border border-clay/60'
@@ -64,14 +66,14 @@ export const VaultCard: React.FC<VaultCardProps> = ({
           </button>
 
           {/* Region & State pill */}
-          <span className="absolute bottom-2.5 left-2.5 bg-parchment/95 px-2 py-0.5 rounded-[4px] text-xs text-ink font-body border border-clay/60 flex items-center gap-1 shadow-xs">
+          <span className="absolute bottom-2 left-2 bg-parchment/95 px-2 py-0.5 rounded-[4px] text-xs text-ink font-body border border-clay/60 flex items-center gap-1 shadow-xs">
             <MapPin size={11} className="text-madder" />
             <span>{product.region}, {product.state}</span>
           </span>
         </div>
       ) : (
         /* Typographic Placeholder Card */
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-clay/30 border-b border-clay/50 p-5 flex flex-col justify-between rounded-t-[2px]">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-clay/30 border-b border-clay/50 p-4 flex flex-col justify-between rounded-t-[2px]">
           <div className="flex items-center justify-between">
             <span className="text-xs font-body text-ink-soft">
               {product.category}
@@ -172,7 +174,7 @@ export const VaultCard: React.FC<VaultCardProps> = ({
           <button
             type="button"
             onClick={() => onAddToCart?.(product)}
-            className="w-full h-10 rounded-[6px] bg-madder hover:bg-madder-dark text-bone font-medium text-xs transition-colors flex items-center justify-center gap-2 font-body cursor-pointer"
+            className="w-full h-11 rounded-[6px] bg-madder hover:bg-madder-dark text-bone font-medium text-xs transition-colors flex items-center justify-center gap-2 font-body cursor-pointer"
           >
             <ShoppingBag size={14} />
             <span>Add to bag</span>

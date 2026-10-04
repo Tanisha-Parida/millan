@@ -59,12 +59,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 w-full select-none">
-      <div className="h-[72px] bg-khadi/90 backdrop-blur-[10px] border-b border-clay px-4 sm:px-8 flex items-center">
+      <div className="h-[72px] bg-khadi/90 backdrop-blur-[10px] border-b border-clay flex items-center">
         <div className="site-container flex items-center justify-between gap-4">
           {/* Brand Wordmark: Rozha One + Devanagari मिलान + 8-point star */}
           <a
             href="#hero-portal"
-            className="flex items-center gap-2.5 text-left group"
+            className="flex items-center gap-2 text-left group"
             aria-label="Milaan home"
           >
             {/* 8-point star craft mark */}
