@@ -7,6 +7,7 @@ import {
   useReducedMotion,
 } from 'framer-motion';
 import { useLenis } from '../hooks/useLenis';
+import JharokhaArches from './ornament/JharokhaArches';
 
 export interface ScrollDoorHeroProps {
   onOpenVoiceStudio?: () => void;
@@ -49,8 +50,8 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
   // Scroll hint disappears in the first 10% of the track
   const hintOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 
-  // --- PHASE 2 (45% → 85%): typography & explore CTA ---
-  const typographyOpacity = useTransform(scrollYProgress, [0.45, 0.85], [0, 1], {
+  // --- PHASE 2: typography fade starts at 35% and completes by 60% when doors finish opening ---
+  const typographyOpacity = useTransform(scrollYProgress, [0.35, 0.60], [0, 1], {
     ease: power2Out,
   });
   const typographyTranslateY = useTransform(typographyOpacity, (v) => 15 * (1 - v));
@@ -81,17 +82,20 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
     <section
       ref={containerRef}
       id="hero-portal"
-      className="scroll-container select-none"
+      className="scroll-container select-none relative"
       aria-label="Milaan introduction: open the darwaza to the artisan world"
     >
       <div className="sticky-viewport">
-        {/* Always-visible wordmark */}
+        {/* Top-left Wordmark: aligned to the container grid margin, 24px from top */}
         <div
-          className="fixed top-3 left-4 z-[45] pointer-events-none"
+          className="fixed top-6 left-[clamp(20px,5vw,64px)] z-[45] pointer-events-none flex items-baseline gap-1.5"
           aria-hidden="true"
         >
-          <span className="font-display text-lg text-khadi drop-shadow-md">
+          <span className="font-display text-2xl font-bold text-bone drop-shadow-md">
             Milaan
+          </span>
+          <span className="font-heading text-sm text-bone/80 drop-shadow-sm">
+            मिलान
           </span>
         </div>
 
@@ -105,13 +109,23 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
               decoding="async"
               className="w-full h-full object-cover object-center filter brightness-90 contrast-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-hero-dark/90 via-hero-dark/45 to-hero-dark/70" />
-            <div className="absolute inset-0 bg-gradient-to-r from-hero-dark/75 via-transparent to-hero-dark/75" />
+
+            {/* Light grain overlay to conceal scaling softness on wide screens */}
             <div
-              className="absolute inset-0"
+              className="absolute inset-0 pointer-events-none z-[1] opacity-[0.07]"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='hg'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23hg)'/%3E%3C/svg%3E")`,
+              }}
+            />
+
+            {/* Seamless feathered atmospheric overlays — softly curved, no hard box edges */}
+            <div className="absolute inset-0 bg-gradient-to-t from-vat/90 via-vat/35 to-vat/60 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-vat/70 via-transparent to-vat/70 pointer-events-none" />
+            <div
+              className="absolute inset-0 pointer-events-none"
               style={{
                 background:
-                  'radial-gradient(circle at 50% 48%, rgba(227, 167, 31, 0.14) 0%, rgba(178, 58, 46, 0.07) 45%, rgba(12, 9, 7, 0.45) 85%)',
+                  'radial-gradient(ellipse at 50% 50%, rgba(217, 162, 27, 0.12) 0%, rgba(168, 64, 47, 0.08) 50%, rgba(20, 26, 59, 0.5) 85%)',
               }}
             />
           </div>
@@ -122,7 +136,7 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-[75%] pointer-events-none z-[4] blur-2xl"
               style={{
                 background:
-                  'radial-gradient(ellipse at center, rgba(245, 240, 230, 0.95) 0%, rgba(227, 167, 31, 0.5) 45%, transparent 75%)',
+                  'radial-gradient(ellipse at center, rgba(255, 247, 232, 0.95) 0%, rgba(217, 162, 27, 0.5) 45%, transparent 75%)',
                 opacity: reduced ? 0 : lightRayOpacity,
                 scaleX: reduced ? 1 : lightRayScaleX,
               }}
@@ -185,16 +199,26 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
             pointerEvents: reduced ? 'auto' : uiLive ? 'auto' : 'none',
           }}
         >
-          <div className="max-w-2xl mx-auto flex flex-col items-center gap-6 mt-24">
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-cream leading-tight drop-shadow-xl">
+          <div className="max-w-2xl mx-auto flex flex-col items-center gap-6 mt-20 relative px-6 py-8">
+            {/* Soft radial scrim behind the text for contrast without looking like a box */}
+            <div
+              className="absolute inset-0 -z-10 pointer-events-none rounded-full"
+              style={{
+                background:
+                  'radial-gradient(ellipse closest-side at center, rgba(20, 26, 59, 0.72) 0%, rgba(20, 26, 59, 0.4) 60%, transparent 100%)',
+                filter: 'blur(20px)',
+              }}
+            />
+
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-bone leading-[1.08] drop-shadow-lg max-w-xl">
               The hands that made it should be paid for it.
             </h1>
-            <p className="font-body text-lg sm:text-xl text-cream/80 max-w-lg leading-relaxed drop-shadow-md">
+            <p className="font-body text-lg sm:text-xl text-bone/90 max-w-lg leading-relaxed drop-shadow-sm">
               Milaan connects India's artisans directly with you.
             </p>
             <button
               onClick={handleExploreClick}
-              className="mt-4 px-8 py-3 rounded-md bg-madder text-khadi font-body font-medium transition-transform hover:scale-105 active:scale-95 cursor-pointer shadow-lg"
+              className="mt-2 h-12 px-8 rounded-[6px] bg-madder hover:bg-madder-dark text-bone font-medium text-base transition-colors cursor-pointer shadow-md focus-visible:outline-2 focus-visible:outline-bone focus-visible:outline-offset-2 flex items-center justify-center"
             >
               See the crafts
             </button>
@@ -203,12 +227,21 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
 
         {/* Scroll prompt */}
         <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-25 pointer-events-none flex items-center justify-center"
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-25 pointer-events-none flex items-center justify-center"
           style={{ opacity: reduced ? 0 : hintOpacity }}
           aria-hidden="true"
         >
-          <span className="font-body text-cream/80 text-sm drop-shadow-md">Scroll</span>
+          <span className="font-body text-bone/80 text-sm drop-shadow-md">Scroll</span>
         </motion.div>
+
+        {/* Bottom of hero: cusped jharokha arch-row seam into khadi */}
+        <JharokhaArches
+          direction="down"
+          fillColor="var(--color-vat)"
+          bgColor="transparent"
+          height={28}
+          className="absolute bottom-0 left-0 right-0 z-30"
+        />
       </div>
     </section>
   );

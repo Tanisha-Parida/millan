@@ -122,7 +122,11 @@ export const ArtisanVaultGrid: React.FC<ArtisanVaultGridProps> = ({
   // Curated Signature Hubs for Current Category
   const signatureHubs = useMemo(() => {
     if (!selectedCategory || !catalog) return [];
-    return catalog.signatureHubs[selectedCategory] || [];
+    return (
+      catalog.signatureHubs[selectedCategory] ||
+      catalog.signatureHubs['Textiles & Handloom'] ||
+      []
+    );
   }, [selectedCategory, catalog]);
 
   // Filtered Results for Level 3
@@ -130,9 +134,18 @@ export const ArtisanVaultGrid: React.FC<ArtisanVaultGridProps> = ({
     if (!selectedCategory || !selectedState || !catalog) return [];
 
     let items = catalog.items.filter((item) => {
-      const catMatch =
-        item.category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-        selectedCategory.toLowerCase().includes(item.category.toLowerCase());
+      let catMatch = false;
+      if (selectedCategory === 'Textiles & Handloom') {
+        catMatch =
+          item.category === 'Textiles' ||
+          item.category === 'Handloom Weaving' ||
+          item.category.includes('Textile');
+      } else {
+        catMatch =
+          item.category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+          selectedCategory.toLowerCase().includes(item.category.toLowerCase());
+      }
+
       const stateMatch =
         item.state.toLowerCase() === selectedState.toLowerCase() ||
         item.state.toLowerCase().includes(selectedState.toLowerCase()) ||
@@ -152,8 +165,7 @@ export const ArtisanVaultGrid: React.FC<ArtisanVaultGridProps> = ({
       );
     }
 
-    // If zero pre-seeded items exist for this exact State + Category combination,
-    // generate an authentic regional artisan collective preview card
+    // Fallback card if zero items match
     if (items.length === 0) {
       const sigHub = signatureHubs.find(
         (h) => h.state.toLowerCase() === selectedState.toLowerCase()
@@ -203,183 +215,173 @@ export const ArtisanVaultGrid: React.FC<ArtisanVaultGridProps> = ({
     );
   }, [searchQuery, catalog]);
 
-  // Search image deduplication tracker
-  const seenSearchImages = new Set<string>();
-
   return (
     <section
       id="artisan-vault"
-      className="relative w-full py-20 px-4 sm:px-8 bg-khadi border-t border-kiln/20 select-none text-left"
+      className="relative w-full section-padding bg-khadi border-t border-clay/30 select-none text-left"
     >
-      {/* 1. Header & Global Search Bar */}
-      <div className="max-w-6xl mx-auto mb-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-kiln/15 pb-6">
-          <div>
-            <h2 className="font-display text-3xl sm:text-4xl text-indigo font-normal tracking-tight">
-              Crafts
-            </h2>
-            <p className="text-base text-indigo/85 max-w-xl mt-1.5 font-body leading-relaxed">
-              Browse India's craft traditions by category and state. Every piece comes straight from
-              the artisan's workshop, with fair pay built in.
-            </p>
-          </div>
-
-          {/* Search Input */}
-          <div className="relative w-full md:w-80">
-            <Search
-              size={15}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-kiln"
-            />
-            <input
-              id="vault-search-input"
-              type="text"
-              placeholder="Search crafts, regions, or materials..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-9 py-2 bg-cream border border-kiln/30 text-sm text-indigo placeholder-kiln/80 focus:outline-none focus:border-indigo focus:ring-1 focus:ring-indigo transition-all"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-kiln hover:text-indigo"
-                aria-label="Clear search"
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* 2. MAIN WORKFLOW: LEVEL 1, LEVEL 2, OR LEVEL 3 */}
-      <div className="max-w-6xl mx-auto">
-        {!catalog ? (
-          <div className="py-24 text-center font-body text-sm text-indigo flex items-center justify-center gap-3">
-            <span>Loading artisan craft catalog...</span>
-          </div>
-        ) : searchQuery.trim() && activeView === 'categories' && globalSearchMatches.length > 0 ? (
-          /* Global Search Matches View */
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="font-display text-xl text-indigo">
-                Found {globalSearchMatches.length}{' '}
-                {globalSearchMatches.length === 1 ? 'piece' : 'pieces'} matching "{searchQuery}"
-              </h3>
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="text-xs font-body text-madder hover:underline"
-              >
-                Clear search
-              </button>
+      <div className="site-container">
+        {/* 1. Header & Global Search Bar aligned to heading baseline */}
+        <div className="mb-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-clay/40 pb-6">
+            <div>
+              <h2 className="font-heading text-3xl sm:text-4xl text-ink font-normal leading-tight">
+                Crafts
+              </h2>
+              <p className="text-base text-ink-soft max-w-xl mt-2 font-body leading-relaxed">
+                Browse India's living craft traditions. Every piece comes directly from the maker's workshop, with fair pay accounted for.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {globalSearchMatches.map((item) => {
-                const isUniquePhoto = !seenSearchImages.has(item.image);
-                if (isUniquePhoto) seenSearchImages.add(item.image);
+            {/* Search Input: 44px high, parchment bg, aligned to baseline */}
+            <div className="relative w-full md:w-80 h-11 shrink-0">
+              <Search
+                size={16}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-soft pointer-events-none"
+              />
+              <input
+                id="vault-search-input"
+                type="text"
+                placeholder="Search crafts, regions, or materials..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-11 pl-10 pr-9 bg-parchment border border-clay rounded-[6px] text-sm text-ink placeholder-ink-soft/70 focus:outline-none focus:border-madder transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink cursor-pointer"
+                  aria-label="Clear search"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
 
-                return (
+        {/* 2. Main Workflow: Level 1, Level 2, or Level 3 */}
+        <div>
+          {!catalog ? (
+            <div className="py-24 text-center font-body text-sm text-ink flex items-center justify-center gap-3">
+              <span>Loading artisan craft catalog...</span>
+            </div>
+          ) : searchQuery.trim() && activeView === 'categories' && globalSearchMatches.length > 0 ? (
+            /* Global Search Matches View */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="font-heading text-xl text-ink font-semibold">
+                  Found {globalSearchMatches.length}{' '}
+                  {globalSearchMatches.length === 1 ? 'piece' : 'pieces'} matching "{searchQuery}"
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="text-xs font-body text-madder hover:underline cursor-pointer"
+                >
+                  Clear search
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {globalSearchMatches.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-cream border border-kiln/25 overflow-hidden p-4 space-y-3"
+                    className="bg-khadi border border-clay rounded-[4px] overflow-hidden p-4 space-y-3"
                   >
-                    <div className="aspect-[4/3] overflow-hidden relative border border-kiln/20">
-                      {isUniquePhoto ? (
-                        <img
-                          src={item.image}
-                          alt={`${item.title} handcrafted in ${item.state}`}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-khadi flex flex-col items-center justify-center p-4 text-center">
-                          <span className="font-display text-lg text-indigo font-bold">
-                            {item.title}
-                          </span>
-                          <span className="text-[13px] text-kiln mt-1 font-body">{item.subCategory}</span>
-                        </div>
-                      )}
-                      <span className="absolute top-2 left-2 bg-cream/90 px-2.5 py-0.5 text-[13px] font-body text-indigo border border-kiln/20">
+                    <div className="aspect-[4/3] overflow-hidden relative rounded-[2px] bg-parchment">
+                      <img
+                        src={item.image}
+                        alt={`${item.title} handcrafted in ${item.state}`}
+                        style={{
+                          filter: 'saturate(0.92) contrast(1.03) sepia(0.06)',
+                        }}
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute bottom-2 left-2 bg-parchment/95 px-2 py-0.5 rounded-[4px] text-xs font-body text-ink border border-clay/60">
                         {item.state}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[13px] font-body text-kiln">
+                      <span className="text-xs font-body text-ink-soft">
                         {item.category}
                       </span>
-                      <h4 className="font-display text-lg text-indigo font-semibold">
+                      <h4 className="font-heading text-lg text-ink font-semibold mt-0.5">
                         {item.title}
                       </h4>
-                      <p className="text-xs text-indigo/80 line-clamp-2 mt-1 font-body">{item.materials}</p>
+                      <p className="text-xs text-ink-soft line-clamp-2 mt-1 font-body">
+                        {item.materials}
+                      </p>
                     </div>
-                    <div className="pt-2 border-t border-kiln/15 flex items-center justify-between">
-                      <span className="font-body font-bold text-indigo text-sm">
+                    <div className="pt-2 border-t border-clay/30 flex items-center justify-between">
+                      <span className="font-body font-bold text-ink text-sm tabular-nums">
                         {formatPrice(item.priceINR, activeCurrency)}
                       </span>
                       <button
                         type="button"
                         onClick={() => setActiveLivingLabel(item)}
-                        className="text-xs px-3 py-1 bg-khadi border border-kiln/20 text-indigo font-semibold hover:bg-kiln/10 font-body transition-colors"
+                        className="text-xs px-3 py-1.5 rounded-[6px] bg-parchment border border-clay text-ink font-medium hover:bg-clay/20 font-body transition-colors cursor-pointer"
                       >
-                        Maker's story
+                        Story
                       </button>
                     </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
-        ) : (
-          <AnimatePresence mode="wait">
-            {activeView === 'categories' && (
-              <CategoryGrid
-                key="level-1-categories"
-                categories={catalog.categories}
-                onSelectCategory={handleSelectCategory}
-              />
-            )}
+          ) : (
+            <AnimatePresence mode="wait">
+              {activeView === 'categories' && (
+                <CategoryGrid
+                  key="level-1-categories"
+                  categories={catalog.categories}
+                  items={catalog.items}
+                  onSelectCategory={handleSelectCategory}
+                />
+              )}
 
-            {activeView === 'states' && selectedCategory && (
-              <StateSelector
-                key={`level-2-states-${selectedCategory}`}
-                selectedCategory={selectedCategory}
-                onSelectState={handleSelectState}
-                onBackToCategories={handleBackToCategories}
-                signatureHubsByCategory={catalog.signatureHubs}
-                allStates={catalog.states}
-              />
-            )}
+              {activeView === 'states' && selectedCategory && (
+                <StateSelector
+                  key={`level-2-states-${selectedCategory}`}
+                  selectedCategory={selectedCategory}
+                  onSelectState={handleSelectState}
+                  onBackToCategories={handleBackToCategories}
+                  signatureHubsByCategory={catalog.signatureHubs}
+                  allStates={catalog.states}
+                />
+              )}
 
-            {activeView === 'results' && selectedCategory && selectedState && (
-              <VaultResults
-                key={`level-3-results-${selectedCategory}-${selectedState}`}
-                activeCurrency={activeCurrency}
-                selectedCategory={selectedCategory}
-                selectedState={selectedState}
-                artisans={filteredArtisans}
-                playingAudioId={playingAudioId}
-                savedWishlist={savedWishlist}
-                onToggleWishlist={toggleWishlist}
-                onToggleAudio={handleToggleAudio}
-                onViewLabel={(item) => setActiveLivingLabel(item)}
-                onAddToCart={onAddToCart}
-                onBackToStates={handleBackToStates}
-                onBackToCategories={handleBackToCategories}
-                onResetFilter={handleResetFilter}
-              />
-            )}
-          </AnimatePresence>
-        )}
+              {activeView === 'results' && selectedCategory && selectedState && (
+                <VaultResults
+                  key={`level-3-results-${selectedCategory}-${selectedState}`}
+                  activeCurrency={activeCurrency}
+                  selectedCategory={selectedCategory}
+                  selectedState={selectedState}
+                  artisans={filteredArtisans}
+                  playingAudioId={playingAudioId}
+                  savedWishlist={savedWishlist}
+                  onToggleWishlist={toggleWishlist}
+                  onToggleAudio={handleToggleAudio}
+                  onViewLabel={(item) => setActiveLivingLabel(item)}
+                  onAddToCart={onAddToCart}
+                  onBackToStates={handleBackToStates}
+                  onBackToCategories={handleBackToCategories}
+                  onResetFilter={handleResetFilter}
+                />
+              )}
+            </AnimatePresence>
+          )}
+        </div>
+
+        {/* Maker's Story Modal Triggered from Cards */}
+        <CraftDetailModal
+          item={activeLivingLabel}
+          onClose={() => setActiveLivingLabel(null)}
+          onAddToCart={onAddToCart}
+          activeCurrency={activeCurrency}
+        />
       </div>
-
-      {/* Maker's Story Modal Triggered from Cards */}
-      <CraftDetailModal
-        item={activeLivingLabel}
-        onClose={() => setActiveLivingLabel(null)}
-        onAddToCart={onAddToCart}
-        activeCurrency={activeCurrency}
-      />
     </section>
   );
 };

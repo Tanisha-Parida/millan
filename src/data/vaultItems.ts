@@ -10,7 +10,7 @@ export const VAULT_ITEMS: CraftItem[] = [
     region: 'Barpali',
     state: 'Odisha',
     image: '/images/ikat.webp',
-    priceINR: 14800,
+    priceINR: 14748,
     artisan: 'Minati & Dinabandhu Meher',
     lineage: '5th Gen Master Pit-Loom Weaver',
     hoursToCraft: 36,

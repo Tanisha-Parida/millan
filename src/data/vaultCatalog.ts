@@ -2,59 +2,52 @@ import type { CraftCategory, SignatureHub } from '../types/craft';
 
 export const CRAFT_CATEGORIES: CraftCategory[] = [
   {
-    id: 'Textiles',
-    title: 'Textiles',
-    subtitle: 'Regional | Textiles',
-    description: 'Rich woven Banarasi, Chanderi, Patola & Kanchipuram silk folds.',
+    id: 'Textiles & Handloom',
+    title: 'Textiles & Handloom',
+    subtitle: 'Woven silk and cotton',
+    description: 'Hand-woven silk and cotton from Odisha, Varanasi and Kanchipuram.',
     image: '/images/ikat.webp',
   },
   {
     id: 'Pottery & Terracotta',
     title: 'Pottery & Terracotta',
-    subtitle: 'Regional | Pottery',
-    description: 'Hand-turned earthenware, Khurja ceramics & Longpi stone pots.',
+    subtitle: 'Earthenware & ceramics',
+    description: 'Kick-wheel pottery, Khurja celadon glazes and smoked black clay.',
     image: '/images/pottery.webp',
-  },
-  {
-    id: 'Handloom Weaving',
-    title: 'Handloom Weaving',
-    subtitle: 'Regional | Weaving',
-    description: 'Traditional geometric pit-loom & backstrap loom heritage fabrics.',
-    image: '/images/weaver.webp',
   },
   {
     id: 'Dhokra Metalcraft',
     title: 'Dhokra Metalcraft',
-    subtitle: 'Regional | Metalcraft',
-    description: '4,000-year-old lost-wax cast bell metal & brass tribal artifacts.',
+    subtitle: 'Lost-wax bell metal',
+    description: 'Ancient lost-wax bell metal and brass cast by forest tribal guilds.',
     image: '/images/dhokra.webp',
   },
   {
     id: 'Woodwork & Inlay',
     title: 'Woodwork & Inlay',
-    subtitle: 'Regional | Woodcraft',
-    description: 'Carved Kashmir walnut, Channapatna lacquer & brass inlay.',
+    subtitle: 'Carved walnut & lacquer',
+    description: 'Kashmir walnut root relief, Channapatna organic lacquer and brass inlay.',
     image: '/images/toys.webp',
   },
   {
     id: 'Leathercraft & Mojaris',
     title: 'Leathercraft & Mojaris',
-    subtitle: 'Regional | Leather',
-    description: 'Hand-stitched embroidered Mojaris, Juttis & Kolhapuri footwear.',
+    subtitle: 'Vegetable-tanned footwear',
+    description: 'Hand-stitched desert mojaris and acacia-bark tanned Kolhapuri footwear.',
     image: '/images/leathercraft-mojari.webp',
   },
   {
     id: 'Stone & Marble Carving',
     title: 'Stone & Marble Carving',
-    subtitle: 'Regional | Stonework',
-    description: 'Perforated marble jaali screens, Agra pietra dura & Konark carving.',
+    subtitle: 'Marble jaali & relief',
+    description: 'Agra gemstone pietra dura inlay, Makrana marble jaalis and chlorite relief.',
     image: '/images/jharokha-gate.webp',
   },
   {
     id: 'Folk & Tribal Art',
     title: 'Folk & Tribal Art',
-    subtitle: 'REGIONAL | FINE ART',
-    description: 'Madhubani, Pattachitra, Warli & sacred Gond tribal canvases.',
+    subtitle: 'Mineral & pigment scrolls',
+    description: 'Madhubani ritual paintings, palm-leaf Tala pattachitra and Warli rice murals.',
     image: '/images/madhubani.webp',
   },
 ];
@@ -101,6 +94,44 @@ export const ALL_INDIAN_STATES = [
 ];
 
 export const SIGNATURE_HUBS_BY_CATEGORY: Record<string, SignatureHub[]> = {
+  'Textiles & Handloom': [
+    {
+      state: 'Odisha',
+      cluster: 'Bargarh & Nuapatna',
+      description: 'Sambalpuri & Maniabandha Bandha Ikat',
+    },
+    {
+      state: 'Uttar Pradesh',
+      cluster: 'Banaras & Mubarakpur',
+      description: 'Real Zari Kadhwa Silk Brocades',
+    },
+    {
+      state: 'Gujarat',
+      cluster: 'Patan & Kutch',
+      description: 'Double Ikat Patola & Desert Bandhani',
+    },
+    {
+      state: 'Andhra Pradesh',
+      cluster: 'Pochampally & Mangalagiri',
+      description: 'Geometric Telia Rumal & Fine Cottons',
+    },
+    {
+      state: 'Madhya Pradesh',
+      cluster: 'Chanderi & Maheshwar',
+      description: 'Gossamer Zari Cotton-Silk Weaves',
+    },
+    { state: 'Assam', cluster: 'Sualkuchi', description: 'Endemic Golden Muga Wild Silk' },
+    {
+      state: 'West Bengal',
+      cluster: 'Phulia & Shantipur',
+      description: 'Fine Muslin Jamdani & Baluchari',
+    },
+    {
+      state: 'Tamil Nadu',
+      cluster: 'Kanchipuram & Arani',
+      description: 'Pure Mulberry Silk Temple Borders',
+    },
+  ],
   Textiles: [
     {
       state: 'Uttar Pradesh',

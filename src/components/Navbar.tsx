@@ -24,11 +24,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   const currencyContainerRef = useRef<HTMLDivElement>(null);
 
   const currencies: { code: CurrencyCode; symbol: string; label: string }[] = [
-    { code: 'INR', symbol: '₹', label: 'Indian Rupee' },
-    { code: 'USD', symbol: '$', label: 'US Dollar' },
+    { code: 'INR', symbol: '₹', label: 'Indian rupee' },
+    { code: 'USD', symbol: '$', label: 'US dollar' },
     { code: 'EUR', symbol: '€', label: 'Euro' },
-    { code: 'GBP', symbol: '£', label: 'British Pound' },
-    { code: 'JPY', symbol: '¥', label: 'Japanese Yen' },
+    { code: 'GBP', symbol: '£', label: 'British pound' },
+    { code: 'JPY', symbol: '¥', label: 'Japanese yen' },
   ];
 
   useEffect(() => {
@@ -59,45 +59,78 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 w-full select-none">
-      <div className="bg-indigo border-b border-khadi/20 px-4 sm:px-8 py-3.5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <div className="h-[72px] bg-khadi/90 backdrop-blur-[10px] border-b border-clay px-4 sm:px-8 flex items-center">
+        <div className="site-container flex items-center justify-between gap-4">
+          {/* Brand Wordmark: Rozha One + Devanagari मिलान + 8-point star */}
           <a
             href="#hero-portal"
-            className="flex flex-col group text-left"
-            aria-label="Milaan"
+            className="flex items-center gap-2.5 text-left group"
+            aria-label="Milaan home"
           >
-            <div className="flex items-center gap-2">
-              <span className="font-display text-xl sm:text-2xl font-bold text-khadi group-hover:text-khadi/80 transition-colors">
+            {/* 8-point star craft mark */}
+            <svg
+              className="w-5 h-5 text-madder shrink-0"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <polygon points="12,2 14.5,8.5 21,7 16.5,12 21,17 14.5,15.5 12,22 9.5,15.5 3,17 7.5,12 3,7 9.5,8.5" />
+            </svg>
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-display text-2xl font-bold text-ink tracking-normal">
                 Milaan
               </span>
+              <span className="font-heading text-sm text-ink-soft">
+                मिलान
+              </span>
             </div>
-            <span className="text-[13px] font-body text-khadi/80 -mt-0.5">
-              Maker's story
-            </span>
           </a>
 
+          {/* Desktop Navigation Links */}
           <nav
-            className="hidden lg:flex items-center gap-7 text-sm font-medium text-khadi/80"
+            className="hidden lg:flex items-center gap-8 text-sm font-medium text-ink"
             aria-label="Main navigation"
           >
             <a
               href="#hero-portal"
               aria-current={activeSection === 'hero-portal' ? 'page' : undefined}
-              className={`transition-colors py-1 ${
+              className={`transition-colors py-1 relative ${
                 activeSection === 'hero-portal'
-                  ? 'text-khadi font-semibold border-b-2 border-madder'
-                  : 'hover:text-khadi'
+                  ? 'text-ink font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-madder'
+                  : 'text-ink-soft hover:text-ink'
               }`}
             >
               Home
             </a>
             <a
+              href="#how-it-works"
+              aria-current={activeSection === 'how-it-works' ? 'page' : undefined}
+              className={`transition-colors py-1 relative ${
+                activeSection === 'how-it-works'
+                  ? 'text-ink font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-madder'
+                  : 'text-ink-soft hover:text-ink'
+              }`}
+            >
+              How it reaches you
+            </a>
+            <a
+              href="#fair-price"
+              aria-current={activeSection === 'fair-price' ? 'page' : undefined}
+              className={`transition-colors py-1 relative ${
+                activeSection === 'fair-price'
+                  ? 'text-ink font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-madder'
+                  : 'text-ink-soft hover:text-ink'
+              }`}
+            >
+              Fair pricing
+            </a>
+            <a
               href="#artisan-vault"
               aria-current={activeSection === 'artisan-vault' ? 'page' : undefined}
-              className={`transition-colors py-1 ${
+              className={`transition-colors py-1 relative ${
                 activeSection === 'artisan-vault'
-                  ? 'text-khadi font-semibold border-b-2 border-madder'
-                  : 'hover:text-khadi'
+                  ? 'text-ink font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-madder'
+                  : 'text-ink-soft hover:text-ink'
               }`}
             >
               Crafts
@@ -105,46 +138,48 @@ export const Navbar: React.FC<NavbarProps> = ({
             <a
               href="#craft-map"
               aria-current={activeSection === 'craft-map' ? 'page' : undefined}
-              className={`transition-colors py-1 ${
+              className={`transition-colors py-1 relative ${
                 activeSection === 'craft-map'
-                  ? 'text-khadi font-semibold border-b-2 border-madder'
-                  : 'hover:text-khadi'
+                  ? 'text-ink font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-madder'
+                  : 'text-ink-soft hover:text-ink'
               }`}
             >
               Map
             </a>
             <a
-              href="#footer"
-              aria-current={activeSection === 'footer' ? 'page' : undefined}
-              className={`transition-colors py-1 ${
-                activeSection === 'footer'
-                  ? 'text-khadi font-semibold border-b-2 border-madder'
-                  : 'hover:text-khadi'
+              href="#charter"
+              aria-current={activeSection === 'charter' ? 'page' : undefined}
+              className={`transition-colors py-1 relative ${
+                activeSection === 'charter'
+                  ? 'text-ink font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-madder'
+                  : 'text-ink-soft hover:text-ink'
               }`}
             >
               About
             </a>
           </nav>
 
+          {/* Utility controls: currency dropdown, shopping bag, list button */}
           <div className="flex items-center gap-3">
+            {/* Currency selector (40-44px hit area, 6px radius, ghost with clay border) */}
             <div className="relative" ref={currencyContainerRef}>
               <button
                 type="button"
                 onClick={() => setCurrencyDropdownOpen(!currencyDropdownOpen)}
-                className="px-2.5 py-1.5 rounded bg-indigo border border-khadi/25 text-[13px] font-body text-khadi flex items-center gap-1 hover:bg-khadi/10 transition-colors"
+                className="h-10 min-w-[44px] px-3 rounded-[6px] bg-parchment/60 border border-clay text-sm text-ink flex items-center gap-1.5 hover:bg-parchment transition-colors"
                 aria-label={`Select currency, current is ${activeCurrency}`}
                 aria-expanded={currencyDropdownOpen}
                 aria-haspopup="listbox"
               >
-                <span>{activeCurrency}</span>
-                <ChevronDown size={14} aria-hidden="true" />
+                <span className="font-medium">{activeCurrency}</span>
+                <ChevronDown size={14} className="text-ink-soft" aria-hidden="true" />
               </button>
 
               {currencyDropdownOpen && (
                 <div
                   role="listbox"
                   aria-label="Available currencies"
-                  className="absolute right-0 mt-2 w-36 rounded bg-indigo border border-khadi/30 shadow-md py-1 z-50"
+                  className="absolute right-0 mt-2 w-40 rounded-[6px] bg-parchment border border-clay shadow-md py-1 z-50"
                 >
                   {currencies.map((c) => (
                     <button
@@ -158,46 +193,49 @@ export const Navbar: React.FC<NavbarProps> = ({
                       }}
                       className={`w-full text-left px-3 py-2 text-sm flex items-center justify-between transition-colors ${
                         activeCurrency === c.code
-                          ? 'bg-khadi/20 text-khadi font-semibold'
-                          : 'text-khadi/80 hover:bg-khadi/10 hover:text-khadi'
+                          ? 'bg-khadi font-semibold text-ink'
+                          : 'text-ink hover:bg-khadi/60'
                       }`}
                     >
                       <span>{c.code}</span>
-                      <span className="text-khadi font-body">{c.symbol}</span>
+                      <span className="text-ink-soft">{c.symbol}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
+            {/* Bag button (40px hit area, 6px radius, ghost with clay border) */}
             <button
               type="button"
               onClick={onOpenCart}
-              className="p-2 rounded bg-indigo border border-khadi/25 text-khadi/80 hover:text-khadi hover:border-khadi/50 transition-colors relative"
-              title="Add to bag"
+              className="h-10 w-10 flex items-center justify-center rounded-[6px] bg-parchment/60 border border-clay text-ink hover:bg-parchment transition-colors relative"
+              title="View shopping bag"
               aria-label={`Shopping bag containing ${cartCount} ${cartCount === 1 ? 'item' : 'items'}`}
             >
               <ShoppingBag size={18} aria-hidden="true" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-madder text-khadi text-[13px] font-body flex items-center justify-center font-bold">
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-madder text-bone text-xs font-semibold flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
             </button>
 
+            {/* List a craft CTA (40-44px hit area, 6px radius, solid madder) */}
             <button
               type="button"
               onClick={onOpenVoiceStudio}
               aria-label="List a craft"
-              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded bg-madder text-khadi font-medium text-sm hover:opacity-90 transition-opacity"
+              className="hidden sm:inline-flex items-center justify-center h-10 px-4 rounded-[6px] bg-madder hover:bg-madder-dark text-bone font-medium text-sm transition-colors cursor-pointer"
             >
-              <span className="font-semibold">List a craft</span>
+              List a craft
             </button>
 
+            {/* Mobile menu trigger */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded bg-indigo border border-khadi/25 text-khadi/80 lg:hidden"
+              className="h-10 w-10 flex items-center justify-center rounded-[6px] bg-parchment/60 border border-clay text-ink lg:hidden"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={mobileMenuOpen}
             >
@@ -205,73 +243,86 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
         </div>
-
-        {mobileMenuOpen && (
-          <nav
-            className="lg:hidden pt-4 pb-2 border-t border-khadi/15 mt-3 space-y-2"
-            aria-label="Mobile navigation"
-          >
-            <a
-              href="#hero-portal"
-              aria-current={activeSection === 'hero-portal' ? 'page' : undefined}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`block py-2 text-base transition-colors ${
-                activeSection === 'hero-portal'
-                  ? 'text-khadi font-semibold'
-                  : 'text-khadi/80 hover:text-khadi'
-              }`}
-            >
-              Home
-            </a>
-            <a
-              href="#artisan-vault"
-              aria-current={activeSection === 'artisan-vault' ? 'page' : undefined}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`block py-2 text-base transition-colors ${
-                activeSection === 'artisan-vault'
-                  ? 'text-khadi font-semibold'
-                  : 'text-khadi/80 hover:text-khadi'
-              }`}
-            >
-              Crafts
-            </a>
-            <a
-              href="#craft-map"
-              aria-current={activeSection === 'craft-map' ? 'page' : undefined}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`block py-2 text-base transition-colors ${
-                activeSection === 'craft-map'
-                  ? 'text-khadi font-semibold'
-                  : 'text-khadi/80 hover:text-khadi'
-              }`}
-            >
-              Map
-            </a>
-            <a
-              href="#footer"
-              aria-current={activeSection === 'footer' ? 'page' : undefined}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`block py-2 text-base transition-colors ${
-                activeSection === 'footer'
-                  ? 'text-khadi font-semibold'
-                  : 'text-khadi/80 hover:text-khadi'
-              }`}
-            >
-              About
-            </a>
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenVoiceStudio();
-              }}
-              className="w-full mt-3 py-2.5 rounded bg-madder text-khadi font-semibold text-sm flex items-center justify-center gap-2"
-            >
-              <span>List a craft</span>
-            </button>
-          </nav>
-        )}
       </div>
+
+      {/* Mobile navigation panel */}
+      {mobileMenuOpen && (
+        <nav
+          className="lg:hidden bg-parchment border-b border-clay px-6 py-4 space-y-3"
+          aria-label="Mobile navigation"
+        >
+          <a
+            href="#hero-portal"
+            aria-current={activeSection === 'hero-portal' ? 'page' : undefined}
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block py-1.5 text-base transition-colors ${
+              activeSection === 'hero-portal' ? 'text-madder font-semibold' : 'text-ink hover:text-madder'
+            }`}
+          >
+            Home
+          </a>
+          <a
+            href="#how-it-works"
+            aria-current={activeSection === 'how-it-works' ? 'page' : undefined}
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block py-1.5 text-base transition-colors ${
+              activeSection === 'how-it-works' ? 'text-madder font-semibold' : 'text-ink hover:text-madder'
+            }`}
+          >
+            How it reaches you
+          </a>
+          <a
+            href="#fair-price"
+            aria-current={activeSection === 'fair-price' ? 'page' : undefined}
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block py-1.5 text-base transition-colors ${
+              activeSection === 'fair-price' ? 'text-madder font-semibold' : 'text-ink hover:text-madder'
+            }`}
+          >
+            Fair pricing
+          </a>
+          <a
+            href="#artisan-vault"
+            aria-current={activeSection === 'artisan-vault' ? 'page' : undefined}
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block py-1.5 text-base transition-colors ${
+              activeSection === 'artisan-vault' ? 'text-madder font-semibold' : 'text-ink hover:text-madder'
+            }`}
+          >
+            Crafts
+          </a>
+          <a
+            href="#craft-map"
+            aria-current={activeSection === 'craft-map' ? 'page' : undefined}
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block py-1.5 text-base transition-colors ${
+              activeSection === 'craft-map' ? 'text-madder font-semibold' : 'text-ink hover:text-madder'
+            }`}
+          >
+            Map
+          </a>
+          <a
+            href="#charter"
+            aria-current={activeSection === 'charter' ? 'page' : undefined}
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block py-1.5 text-base transition-colors ${
+              activeSection === 'charter' ? 'text-madder font-semibold' : 'text-ink hover:text-madder'
+            }`}
+          >
+            About
+          </a>
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenVoiceStudio();
+            }}
+            className="w-full mt-2 h-11 rounded-[6px] bg-madder hover:bg-madder-dark text-bone font-semibold text-sm flex items-center justify-center transition-colors cursor-pointer"
+          >
+            List a craft
+          </button>
+        </nav>
+      )}
     </header>
   );
 };

@@ -1,12 +1,11 @@
 import React from 'react';
-import { m } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import {
   Heart,
   MapPin,
   ShoppingBag,
   Volume2,
   VolumeX,
-  Sparkles,
 } from 'lucide-react';
 import type { CraftItem } from '../../types/craft';
 import { formatPrice, type CurrencyCode } from '../../lib/currency';
@@ -35,55 +34,53 @@ export const VaultCard: React.FC<VaultCardProps> = ({
   showPhoto = true,
 }) => {
   return (
-    <div className="group relative bg-khadi border border-kiln/20 overflow-hidden flex flex-col justify-between">
-      {/* High-Res Product Image OR Typographic Placeholder for duplicate images */}
+    <div className="group relative bg-khadi border border-clay rounded-[4px] overflow-hidden flex flex-col justify-between transition-colors focus-within:ring-2 focus-within:ring-madder">
+      {/* Product Image without dark scrim */}
       {showPhoto ? (
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-cream">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-parchment rounded-t-[2px]">
           <img
             src={product.image}
             alt={`${product.title} handcrafted in ${product.region}, ${product.state}`}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            style={{
+              filter: 'saturate(0.92) contrast(1.03) sepia(0.06)',
+            }}
+            className="w-full h-full object-cover object-center group-hover:scale-[1.03] transition-transform duration-600 ease-out"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-indigo/50 via-transparent to-transparent" />
 
           {/* Wishlist Heart Button */}
           <button
             type="button"
             onClick={() => onToggleWishlist(product.id)}
-            className={`absolute top-3 right-3 w-8 h-8 rounded flex items-center justify-center transition-colors ${
-              isSaved ? 'bg-madder text-khadi' : 'bg-cream/80 text-indigo hover:text-madder'
+            className={`absolute top-2.5 right-2.5 w-8 h-8 rounded-[6px] flex items-center justify-center transition-colors cursor-pointer ${
+              isSaved
+                ? 'bg-madder text-bone'
+                : 'bg-parchment/90 text-ink hover:text-madder border border-clay/60'
             }`}
             aria-label="Save to Wishlist"
           >
             <Heart size={14} fill={isSaved ? 'currentColor' : 'none'} />
           </button>
 
-          {/* Real Field Badge: Region & State */}
-          <span className="absolute top-3 left-3 bg-cream/90 px-2 py-1 rounded text-[13px] text-indigo font-body border border-kiln/20 flex items-center gap-1.5">
-            <MapPin size={12} />
+          {/* Region & State pill */}
+          <span className="absolute bottom-2.5 left-2.5 bg-parchment/95 px-2 py-0.5 rounded-[4px] text-xs text-ink font-body border border-clay/60 flex items-center gap-1 shadow-xs">
+            <MapPin size={11} className="text-madder" />
             <span>{product.region}, {product.state}</span>
           </span>
-
-          {/* Hours to craft tag */}
-          <div className="absolute bottom-2.5 left-3 text-[13px] font-body text-khadi flex items-center gap-1">
-            <Sparkles size={12} />
-            <span>{product.hoursToCraft} hrs of handwork</span>
-          </div>
         </div>
       ) : (
         /* Typographic Placeholder Card */
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-cream border-b border-kiln/20 p-5 flex flex-col justify-between">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-clay/30 border-b border-clay/50 p-5 flex flex-col justify-between rounded-t-[2px]">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] font-body text-indigo">
+            <span className="text-xs font-body text-ink-soft">
               {product.category}
             </span>
             <button
               type="button"
               onClick={() => onToggleWishlist(product.id)}
-              className={`w-8 h-8 rounded flex items-center justify-center transition-colors ${
-                isSaved ? 'bg-madder text-khadi' : 'bg-khadi text-indigo hover:text-madder'
+              className={`w-8 h-8 rounded-[6px] flex items-center justify-center transition-colors cursor-pointer ${
+                isSaved ? 'bg-madder text-bone' : 'bg-parchment text-ink hover:text-madder border border-clay'
               }`}
               aria-label="Save to Wishlist"
             >
@@ -91,68 +88,68 @@ export const VaultCard: React.FC<VaultCardProps> = ({
             </button>
           </div>
           <div className="space-y-1">
-            <div className="font-display text-xl font-bold text-indigo leading-snug line-clamp-2">
+            <div className="font-heading text-xl font-bold text-ink leading-snug line-clamp-2">
               {product.title}
             </div>
-            <div className="text-[13px] text-kiln font-body italic">
+            <div className="text-xs text-ink-soft font-body">
               {product.subCategory}
             </div>
           </div>
-          <div className="flex items-center justify-between text-[13px] font-body text-indigo">
+          <div className="flex items-center justify-between text-xs font-body text-ink">
             <div className="flex items-center gap-1">
-              <MapPin size={12} className="text-kiln" />
+              <MapPin size={11} className="text-madder" />
               <span>{product.region}, {product.state}</span>
             </div>
-            <span className="text-neem">{product.hoursToCraft} hrs craft</span>
+            <span className="text-neem font-medium">{product.hoursToCraft} hrs</span>
           </div>
         </div>
       )}
 
       {/* Product Card Details */}
-      <div className="p-4 space-y-3.5 flex flex-col justify-between flex-1">
+      <div className="p-4 space-y-3 flex flex-col justify-between flex-1">
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-body text-kiln">{product.subCategory}</span>
-            <span className="text-[13px] text-neem">
-              {product.hoursToCraft} hrs of handwork
+          <div className="flex items-center justify-between text-xs text-ink-soft">
+            <span className="font-body">{product.subCategory}</span>
+            <span className="text-neem font-medium">
+              {product.hoursToCraft} hrs craft
             </span>
           </div>
 
-          <h4 className="font-display text-lg text-indigo font-semibold leading-snug group-hover:text-madder transition-colors">
+          <h4 className="font-heading text-lg text-ink font-semibold leading-snug group-hover:underline decoration-madder underline-offset-2 transition-colors">
             {product.title}
           </h4>
 
-          <div className="text-xs text-indigo space-y-0.5 font-body">
-            <div className="font-medium">Artisan: {product.artisan}</div>
-            <div className="text-[13px]">Lineage: {product.lineage}</div>
+          <div className="text-xs text-ink space-y-0.5 font-body">
+            <div className="font-medium text-ink">Artisan: {product.artisan}</div>
+            <div className="text-ink-soft text-[12px]">{product.lineage}</div>
           </div>
 
-          <p className="text-[13px] text-indigo line-clamp-2 pt-1 font-body">
+          <p className="text-xs text-ink-soft line-clamp-2 pt-1 font-body">
             {product.materials}
           </p>
         </div>
 
         {/* Price & Action Row */}
-        <div className="pt-3 border-t border-kiln/20 space-y-3">
+        <div className="pt-3 border-t border-clay/30 space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-[13px] font-body text-kiln block">
+              <span className="text-[11px] font-body text-ink-soft block uppercase tracking-wider">
                 Artisan's price
               </span>
-              <span className="text-base font-body font-semibold text-indigo">
+              <span className="text-base font-body font-bold text-ink tabular-nums">
                 {formatPrice(product.priceINR, activeCurrency)}
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               {/* Audio Story Toggle */}
               <button
                 type="button"
                 onClick={() => onToggleAudio(product)}
-                className={`p-2 rounded border transition-all ${
+                className={`p-2 rounded-[6px] border transition-colors cursor-pointer ${
                   isAudioPlaying
-                    ? 'bg-haldi text-indigo border-haldi'
-                    : 'bg-cream text-indigo border-kiln/20 hover:bg-haldi/20'
+                    ? 'bg-haldi text-ink border-haldi'
+                    : 'bg-parchment text-ink border-clay hover:bg-clay/20'
                 }`}
                 title="Hear the artisan's story"
                 aria-label="Hear the artisan's story"
@@ -164,18 +161,18 @@ export const VaultCard: React.FC<VaultCardProps> = ({
               <button
                 type="button"
                 onClick={() => onViewLabel(product)}
-                className="text-madder text-xs font-semibold flex items-center gap-1 transition-colors hover:underline font-body"
+                className="text-madder text-xs font-semibold hover:underline font-body cursor-pointer"
               >
-                <span>Maker's story</span>
+                Story
               </button>
             </div>
           </div>
 
-          {/* Add to Cart Action */}
+          {/* Add to Bag Action */}
           <button
             type="button"
             onClick={() => onAddToCart?.(product)}
-            className="w-full py-2.5 rounded bg-madder text-khadi font-bold text-xs hover:opacity-90 transition-all flex items-center justify-center gap-2 font-body"
+            className="w-full h-10 rounded-[6px] bg-madder hover:bg-madder-dark text-bone font-medium text-xs transition-colors flex items-center justify-center gap-2 font-body cursor-pointer"
           >
             <ShoppingBag size={14} />
             <span>Add to bag</span>
@@ -183,26 +180,26 @@ export const VaultCard: React.FC<VaultCardProps> = ({
 
           {/* Audio Narration Bubble (if active) */}
           {isAudioPlaying && (
-            <m.div
+            <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="p-3 rounded bg-cream border border-kiln/20 text-left text-xs space-y-1 overflow-hidden"
+              className="p-3 rounded-[4px] bg-parchment border border-clay/60 text-left text-xs space-y-1 overflow-hidden"
             >
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-neem" />
-                <span className="text-[13px] font-body text-indigo">
+                <span className="w-2 h-2 rounded-full bg-neem shrink-0" />
+                <span className="text-xs font-body font-medium text-ink">
                   In the artisan's words ({product.audioNarrative.dialect}):
                 </span>
               </div>
-              <p className="italic font-display text-indigo">
-                "{product.audioNarrative.vernacularQuote}"
+              <p className="italic font-heading text-ink text-sm">
+                “{product.audioNarrative.vernacularQuote}”
               </p>
-              <p className="text-[13px] text-kiln font-body">
-                <strong className="text-indigo">En:</strong>{' '}
+              <p className="text-xs text-ink-soft font-body">
+                <strong className="text-ink font-semibold">En:</strong>{' '}
                 {product.audioNarrative.englishTranslation}
               </p>
-            </m.div>
+            </motion.div>
           )}
         </div>
       </div>

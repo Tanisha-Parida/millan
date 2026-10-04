@@ -90,7 +90,15 @@ export default function App() {
 
   // Track active section for navbar aria-current
   useEffect(() => {
-    const sectionIds = ['hero-portal', 'artisan-vault', 'craft-map', 'footer'];
+    const sectionIds = [
+      'hero-portal',
+      'how-it-works',
+      'who-keeps-the-money',
+      'fair-price',
+      'artisan-vault',
+      'craft-map',
+      'charter',
+    ];
     const elements = sectionIds
       .map((id) => document.getElementById(id))
       .filter(Boolean) as HTMLElement[];
@@ -171,7 +179,7 @@ export default function App() {
         <SmoothScroll>
           <a
             href="#artisan-vault"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2.5 focus:bg-madder focus:text-khadi focus:font-bold focus:rounded focus:shadow-md focus:outline-none"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2.5 focus:bg-madder focus:text-bone focus:font-semibold focus:rounded-[6px] focus:shadow-md focus:outline-none"
           >
             Skip to content
           </a>
@@ -200,18 +208,25 @@ export default function App() {
                 onExploreVault={scrollToVault}
               />
 
+              {/* Journey */}
               <OneMakerSection />
+
+              {/* Who keeps the money (Merged Story Part 1) */}
               <ProblemSection />
 
+              {/* Fair price calculator (Merged Story Part 2) */}
+              <FairPriceCalculator />
+
+              {/* Crafts Vault */}
               <ArtisanVaultGrid
                 onAddToCart={handleAddToCart}
                 cartCount={cartIds.length}
                 onOpenCart={() => setIsCommissionModalOpen(true)}
                 activeCurrency={activeCurrency}
               />
-              <GlobalGlobeSection />
 
-              <FairPriceCalculator />
+              {/* Craft Map */}
+              <GlobalGlobeSection />
             </main>
 
             <Suspense fallback={null}>
@@ -243,26 +258,26 @@ export default function App() {
               {toasts.map((toast) => (
                 <div
                   key={toast.id}
-                  className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded bg-indigo border border-kiln/30 shadow-md text-sm text-khadi max-w-xs animate-slide-in-right"
+                  className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-[6px] bg-vat border border-clay/60 shadow-lg text-sm text-bone max-w-xs animate-slide-in-right"
                 >
                   <span className="w-2 h-2 rounded-full bg-neem shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-khadi text-xs leading-snug truncate">
+                    <p className="font-medium text-bone text-xs leading-snug truncate">
                       Added to your bag
                     </p>
-                    <p className="text-[13px] text-khadi/80 truncate">{toast.title}</p>
+                    <p className="text-[13px] text-bone/80 truncate">{toast.title}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsCommissionModalOpen(true)}
-                    className="shrink-0 text-[13px] font-body font-bold text-khadi hover:text-khadi/80 transition-colors whitespace-nowrap"
+                    className="shrink-0 text-[13px] font-body font-semibold text-bone hover:text-bone/80 transition-colors whitespace-nowrap cursor-pointer"
                   >
                     View bag
                   </button>
                   <button
                     type="button"
                     onClick={() => dismissToast(toast.id)}
-                    className="shrink-0 text-khadi/60 hover:text-khadi transition-colors text-xs leading-none"
+                    className="shrink-0 text-bone/60 hover:text-bone transition-colors text-xs leading-none cursor-pointer"
                     aria-label="Dismiss notification"
                   >
                     ✕
