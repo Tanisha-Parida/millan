@@ -401,7 +401,7 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
           <div className="space-y-6">
             {/* Language Selector */}
             <div className="space-y-2">
-              <label className="text-xs text-ink-soft font-medium flex items-center gap-1.5 uppercase tracking-wide">
+              <label className="text-xs text-ink-soft font-medium flex items-center gap-1.5">
                 <Globe size={14} />
                 <span>Dialect preset:</span>
               </label>
@@ -472,7 +472,7 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
 
             {/* Photo Attachment */}
             <div className="space-y-2">
-              <label className="text-xs text-ink-soft font-medium flex items-center gap-1.5 uppercase tracking-wide">
+              <label className="text-xs text-ink-soft font-medium flex items-center gap-1.5">
                 <Camera size={14} />
                 <span>Craft photograph (optional):</span>
               </label>
@@ -548,7 +548,7 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
           <div className="space-y-6 text-left">
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-ink-soft font-medium uppercase tracking-wide block mb-1">
+                <label className="text-xs text-ink-soft font-medium block mb-1">
                   Listing title
                 </label>
                 <input
@@ -560,7 +560,7 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
               </div>
 
               <div>
-                <label className="text-xs text-ink-soft font-medium uppercase tracking-wide block mb-1">
+                <label className="text-xs text-ink-soft font-medium block mb-1">
                   English translation & description
                 </label>
                 <textarea
@@ -573,7 +573,7 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-ink-soft font-medium uppercase tracking-wide block mb-1">
+                  <label className="text-xs text-ink-soft font-medium block mb-1">
                     Materials used
                   </label>
                   <input
@@ -584,7 +584,7 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-ink-soft font-medium uppercase tracking-wide block mb-1">
+                  <label className="text-xs text-ink-soft font-medium block mb-1">
                     Suggested buyer price (₹)
                   </label>
                   <input

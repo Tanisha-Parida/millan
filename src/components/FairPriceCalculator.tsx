@@ -5,6 +5,7 @@ import {
   formatINR,
   type PricingInput,
 } from '../lib/pricing';
+import IkatBorder from './ornament/IkatBorder';
 
 export const FairPriceCalculator: React.FC = () => {
   const [params, setParams] = useState<PricingInput>(DEFAULT_EXAMPLE);
@@ -38,10 +39,15 @@ export const FairPriceCalculator: React.FC = () => {
   return (
     <section
       id="fair-price"
-      className="bg-khadi-deep section-padding border-t border-clay/30"
+      className="bg-khadi-deep relative text-left"
       aria-label="Fair price interactive calculator"
     >
-      <div className="site-container">
+      {/* 120px gradient seam from parchment to khadi-deep with Ikat border */}
+      <div className="w-full h-[120px] bg-gradient-to-b from-parchment to-khadi-deep flex items-center justify-center select-none pointer-events-none" aria-hidden="true">
+        <IkatBorder color="var(--color-clay)" height={12} className="w-full opacity-60" />
+      </div>
+
+      <div className="site-container pb-20 sm:pb-28">
         {/* Section Header */}
         <div className="max-w-2xl mb-12 text-left">
           <h2 className="font-heading text-3xl sm:text-4xl text-ink font-normal leading-tight">
@@ -221,7 +227,7 @@ export const FairPriceCalculator: React.FC = () => {
             aria-live="polite"
           >
             <div>
-              <span className="text-xs text-ink-soft uppercase tracking-wider font-semibold">
+              <span className="text-xs text-ink-soft font-semibold">
                 Transparent buyer total
               </span>
               {/* Big figure allowed here in tabular Mukta / Rozha */}
@@ -309,7 +315,7 @@ export const FairPriceCalculator: React.FC = () => {
             {/* Maker keeps highlight */}
             <div className="bg-neem/10 border border-neem/30 rounded-[4px] p-4 flex items-center justify-between">
               <div>
-                <div className="text-xs text-neem font-semibold uppercase tracking-wide">
+                <div className="text-xs text-neem font-semibold">
                   Maker receives
                 </div>
                 <div className="text-xs text-ink-soft">

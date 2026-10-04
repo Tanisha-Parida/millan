@@ -95,7 +95,7 @@ export const CraftDetailModal: React.FC<CraftDetailModalProps> = ({
               {/* Right: Transparent Fair Wage & Materials Breakdown */}
               <div className="space-y-4 flex flex-col justify-between">
                 <div>
-                  <h4 className="font-body text-xs text-ink-soft uppercase tracking-wider font-semibold mb-2">
+                  <h4 className="font-body text-xs text-ink-soft font-semibold mb-2">
                     Where your payment goes
                   </h4>
 

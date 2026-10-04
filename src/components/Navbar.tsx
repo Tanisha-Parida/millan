@@ -58,8 +58,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, [currencyDropdownOpen]);
 
   return (
-    <header className="sticky top-0 z-40 w-full select-none">
-      <div className="h-[72px] bg-khadi/90 backdrop-blur-[10px] border-b border-clay flex items-center">
+    <header className="w-full select-none bg-khadi border-b border-clay">
+      <div className="h-[72px] flex items-center">
         <div className="site-container flex items-center justify-between gap-4">
           {/* Brand Wordmark: Rozha One + Devanagari मिलान + 8-point star */}
           <a
@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <polygon points="12,2 14.5,8.5 21,7 16.5,12 21,17 14.5,15.5 12,22 9.5,15.5 3,17 7.5,12 3,7 9.5,8.5" />
             </svg>
             <div className="flex items-baseline gap-1.5">
-              <span className="font-display text-2xl font-bold text-ink tracking-normal">
+              <span className="font-display text-2xl font-bold text-ink">
                 Milaan
               </span>
               <span className="font-heading text-sm text-ink-soft">

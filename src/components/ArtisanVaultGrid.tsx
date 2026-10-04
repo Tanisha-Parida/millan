@@ -6,6 +6,7 @@ import { formatPrice, type CurrencyCode } from '../lib/currency';
 import { CategoryGrid, StateSelector } from './vault/VaultFilters';
 import { VaultResults } from './vault/VaultResults';
 import { CraftDetailModal } from './vault/CraftDetailModal';
+import KanthaStitch from './ornament/KanthaStitch';
 
 export type { CraftItem } from '../types/craft';
 
@@ -134,17 +135,13 @@ export const ArtisanVaultGrid: React.FC<ArtisanVaultGridProps> = ({
     if (!selectedCategory || !selectedState || !catalog) return [];
 
     let items = catalog.items.filter((item) => {
-      let catMatch = false;
-      if (selectedCategory === 'Textiles & Handloom') {
-        catMatch =
-          item.category === 'Textiles' ||
-          item.category === 'Handloom Weaving' ||
-          item.category.includes('Textile');
-      } else {
-        catMatch =
-          item.category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-          selectedCategory.toLowerCase().includes(item.category.toLowerCase());
-      }
+      const catMatch =
+        selectedCategory === 'Textiles & Handloom'
+          ? item.category === 'Textiles' ||
+            item.category === 'Handloom Weaving' ||
+            item.category.includes('Textile')
+          : item.category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+            selectedCategory.toLowerCase().includes(item.category.toLowerCase());
 
       const stateMatch =
         item.state.toLowerCase() === selectedState.toLowerCase() ||
@@ -218,9 +215,14 @@ export const ArtisanVaultGrid: React.FC<ArtisanVaultGridProps> = ({
   return (
     <section
       id="artisan-vault"
-      className="relative w-full section-padding bg-khadi border-t border-clay/30 select-none text-left"
+      className="relative w-full bg-khadi select-none text-left"
     >
-      <div className="site-container">
+      {/* 120px gradient seam from khadi-deep to khadi with Kantha stitch */}
+      <div className="w-full h-[120px] bg-gradient-to-b from-khadi-deep to-khadi flex items-center justify-center select-none pointer-events-none" aria-hidden="true">
+        <KanthaStitch color="var(--color-clay)" strokeWidth={1.5} dashArray="8 6" className="w-full opacity-60" />
+      </div>
+
+      <div className="site-container pb-20 sm:pb-28">
         {/* 1. Header & Global Search Bar aligned to heading baseline */}
         <div className="mb-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-clay/40 pb-6">

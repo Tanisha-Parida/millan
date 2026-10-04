@@ -114,7 +114,7 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
         {/* Items in Bag List */}
         {itemsToDisplay.length > 0 ? (
           <div className="mb-6 p-4 rounded-[4px] bg-khadi border border-clay space-y-3">
-            <div className="text-xs text-ink-soft uppercase tracking-wider font-semibold">
+            <div className="text-xs text-ink-soft font-semibold">
               Selected crafts ({itemsToDisplay.length}):
             </div>
             <div className="space-y-2 max-h-40 overflow-y-auto pr-1 no-scrollbar">
@@ -179,7 +179,7 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4 text-sm font-body">
             <div>
-              <label className="block text-xs text-ink-soft uppercase tracking-wide font-medium mb-1">
+              <label className="block text-xs text-ink-soft font-medium mb-1">
                 Craft tradition:
               </label>
               <select
@@ -197,7 +197,7 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-ink-soft uppercase tracking-wide font-medium mb-1">
+                <label className="block text-xs text-ink-soft font-medium mb-1">
                   Your name:
                 </label>
                 <input
@@ -211,7 +211,7 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs text-ink-soft uppercase tracking-wide font-medium mb-1">
+                <label className="block text-xs text-ink-soft font-medium mb-1">
                   Delivery location:
                 </label>
                 <input
@@ -226,7 +226,7 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs text-ink-soft uppercase tracking-wide font-medium mb-1">
+              <label className="block text-xs text-ink-soft font-medium mb-1">
                 Target budget (₹):
               </label>
               <input
@@ -239,7 +239,7 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs text-ink-soft uppercase tracking-wide font-medium mb-1">
+              <label className="block text-xs text-ink-soft font-medium mb-1">
                 Custom requirements & notes:
               </label>
               <textarea

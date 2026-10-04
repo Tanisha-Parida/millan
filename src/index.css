@@ -240,19 +240,21 @@ p {
   position: sticky;
   top: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
+  min-height: 100svh;
+  max-height: 100svh;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   perspective: 1200px;
-  background: #0c0907;
+  background: var(--color-khadi);
 }
 
 .door-frame {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: max(100vw, calc(100svh * 16 / 9));
+  height: max(100svh, calc(100vw * 9 / 16));
   aspect-ratio: 16 / 9;
   display: flex;
   align-items: center;
@@ -262,12 +264,10 @@ p {
 }
 
 .portal-stage {
-  position: relative;
-  max-width: 100vw;
-  max-height: 100vh;
-  width: min(100vw, 177.78vh);
-  aspect-ratio: 16 / 9;
-  margin: 0 auto;
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100svh;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -460,7 +460,7 @@ html.lenis body {
   }
 
   .scroll-container {
-    height: 100vh !important;
+    height: 100svh !important;
   }
 
   .door-left,

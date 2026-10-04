@@ -292,7 +292,7 @@ export const IndiaInteractiveMap: React.FC<IndiaInteractiveMapProps> = ({
 
               {/* Craft Traditions List */}
               <div className="space-y-3">
-                <div className="text-xs text-ink-soft uppercase tracking-wider font-semibold">
+                <div className="text-xs text-ink-soft font-semibold">
                   Artisanal traditions ({selectedDossier.crafts.length})
                 </div>
 

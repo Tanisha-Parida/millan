@@ -6,6 +6,7 @@ import {
   useMotionValueEvent,
   useReducedMotion,
 } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import { useLenis } from '../hooks/useLenis';
 import JharokhaArches from './ornament/JharokhaArches';
 
@@ -233,21 +234,24 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
           </div>
         </motion.div>
 
-        {/* Scroll prompt */}
+        {/* Scroll prompt: 14px, bone colour, full opacity, small chevron */}
         <motion.div
           className="absolute bottom-12 left-1/2 -translate-x-1/2 z-25 pointer-events-none flex items-center justify-center"
           style={{ opacity: reduced ? 0 : hintOpacity }}
           aria-hidden="true"
         >
-          <span className="font-body text-bone/80 text-sm drop-shadow-md">Scroll</span>
+          <span className="font-body text-bone text-[14px] leading-none drop-shadow-md flex items-center gap-1.5 font-normal">
+            Scroll
+            <ChevronDown size={14} className="text-bone inline" />
+          </span>
         </motion.div>
 
-        {/* Bottom of hero: cusped jharokha arch-row seam into khadi */}
+        {/* Bottom of hero: scallops in the khadi colour rising into the image */}
         <JharokhaArches
-          direction="down"
-          fillColor="var(--color-vat)"
+          direction="up"
+          fillColor="var(--color-khadi)"
           bgColor="transparent"
-          height={28}
+          height={32}
           className="absolute bottom-0 left-0 right-0 z-30"
         />
       </div>

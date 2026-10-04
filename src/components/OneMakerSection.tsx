@@ -1,9 +1,7 @@
 import React from 'react';
-import { m as motion, useReducedMotion } from 'framer-motion';
 import { EXAMPLE_BREAKDOWN, formatINR } from '../lib/pricing';
 
 export const OneMakerSection: React.FC = () => {
-  const reduced = useReducedMotion();
   const { materials, labour, milaanFee, shipping, buyerTotal, makerSharePct } = EXAMPLE_BREAKDOWN;
   const makerTotal = materials + labour;
 
@@ -26,70 +24,58 @@ export const OneMakerSection: React.FC = () => {
 
         {/* Continuous Stitched Thread Container */}
         <div className="relative">
-          {/* Desktop Connecting Thread (horizontal stitched madder line) */}
-          <div className="hidden lg:block absolute top-4 left-8 right-8 h-1 pointer-events-none z-0">
+          {/* Desktop Connecting Thread (horizontal running stitch madder line) */}
+          <div className="hidden lg:block absolute top-4 left-8 right-8 h-[2px] pointer-events-none z-0">
             <svg
-              className="w-full h-4 overflow-visible"
-              viewBox="0 0 1000 4"
-              preserveAspectRatio="none"
+              className="w-full h-[2px] overflow-hidden"
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true"
             >
-              <motion.line
+              <line
                 x1="0"
-                y1="2"
-                x2="1000"
-                y2="2"
+                y1="1"
+                x2="100%"
+                y2="1"
                 stroke="var(--color-madder)"
                 strokeWidth="2"
-                strokeDasharray="6 6"
+                strokeDasharray="8 6"
                 strokeLinecap="round"
-                initial={{ pathLength: reduced ? 1 : 0 }}
-                whileInView={{ pathLength: 1 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 1.2, ease: 'easeOut' }}
               />
             </svg>
           </div>
 
-          {/* Mobile/Tablet Connecting Thread (vertical stitched madder line) */}
-          <div className="lg:hidden absolute top-4 bottom-12 left-4 w-1 -translate-x-1/2 pointer-events-none z-0">
+          {/* Mobile/Tablet Connecting Thread (vertical running stitch madder line) */}
+          <div className="lg:hidden absolute top-4 bottom-12 left-4 w-[2px] -translate-x-1/2 pointer-events-none z-0">
             <svg
-              className="w-4 h-full overflow-visible"
-              viewBox="0 0 4 1000"
-              preserveAspectRatio="none"
+              className="w-[2px] h-full overflow-hidden"
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true"
             >
-              <motion.line
-                x1="2"
+              <line
+                x1="1"
                 y1="0"
-                x2="2"
-                y2="1000"
+                x2="1"
+                y2="100%"
                 stroke="var(--color-madder)"
                 strokeWidth="2"
-                strokeDasharray="6 6"
+                strokeDasharray="8 6"
                 strokeLinecap="round"
-                initial={{ pathLength: reduced ? 1 : 0 }}
-                whileInView={{ pathLength: 1 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 1.2, ease: 'easeOut' }}
               />
             </svg>
           </div>
 
           {/* 4 Stops along the journey (horizontal on lg, vertical on mobile) */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-6 relative z-10">
-            {/* ─── STOP 1: She speaks ───────────────────────────────────────── */}
+            {/* ─── STOP 1: Voice ────────────────────────────────────────────── */}
             <div className="flex flex-col relative pl-12 lg:pl-0">
               {/* Marker with number */}
               <div className="flex items-center gap-3 mb-6 absolute left-0 top-0 lg:static">
-                <span className="w-8 h-8 rounded-full bg-madder text-bone font-heading text-sm font-semibold flex items-center justify-center shrink-0 shadow-sm ring-4 ring-khadi">
+                <span className="w-8 h-8 rounded-full bg-madder text-bone font-heading text-sm font-semibold flex items-center justify-center shrink-0 shadow-sm ring-4 ring-khadi z-10">
                   1
                 </span>
                 {/* Audio Waveform Glyph */}
                 <div
-                  className="hidden sm:flex lg:flex items-center gap-1 h-5 text-madder"
+                  className="hidden sm:flex lg:flex items-center gap-1 h-5 text-madder bg-khadi px-1.5 rounded z-10"
                   aria-hidden="true"
                   title="Audio voice recording"
                 >
@@ -101,39 +87,38 @@ export const OneMakerSection: React.FC = () => {
                 </div>
               </div>
 
-              <h3 className="font-heading text-xl text-ink font-semibold mb-3">
-                She speaks
+              <h3 className="font-heading text-xl text-ink font-semibold mb-3 [text-wrap:balance]">
+                Voice
               </h3>
 
-              <div className="bg-parchment/70 border border-clay/60 rounded-[4px] p-6 flex-1 flex flex-col justify-between shadow-xs">
+              {/* No card borders or backgrounds on Stop 1 */}
+              <div className="flex-1 flex flex-col justify-between">
                 <div>
-                  <p className="font-heading text-lg text-ink leading-relaxed mb-4 max-w-[62ch]">
+                  {/* NOTE: Odia text needs a native speaker's check. */}
+                  <p className="font-heading text-lg text-ink leading-relaxed mb-4 max-w-[62ch] [text-wrap:pretty]">
                     “ମୋର ଏଇ ଶାଢ଼ୀ ବୁଣିବା ପାଇଁ ୩୬ ଘଣ୍ଟା ଲାଗିଲା। ସବୁ ସୂତା କୁ ହାତରେ ବାନ୍ଧି ପ୍ରାକୃତିକ ରଙ୍ଗ ଦିଆଯାଇଛି।”
                   </p>
-                  <p className="text-sm text-ink-soft leading-relaxed max-w-[62ch]">
-                    “It took 36 hours of hand calculation on our wooden pit loom. Every single yarn was tied and dip-dyed in natural indigo before weaving.”
+                  <p className="text-sm text-ink-soft leading-relaxed max-w-[62ch] [text-wrap:pretty]">
+                    “It took 36 hours to weave this saree on our pit loom. Every thread was tied by hand and dyed in natural colours.”
                   </p>
                 </div>
                 <p className="text-xs text-ink-soft mt-4 pt-3 border-t border-clay/40">
-                  Recorded in Sambalpuri Kosli dialect
+                  Odia
                 </p>
               </div>
             </div>
 
-            {/* ─── STOP 2: The listing appears ─────────────────────────────── */}
+            {/* ─── STOP 2: Listing ──────────────────────────────────────────── */}
             <div className="flex flex-col relative pl-12 lg:pl-0">
               {/* Marker with number */}
               <div className="flex items-center gap-3 mb-6 absolute left-0 top-0 lg:static">
-                <span className="w-8 h-8 rounded-full bg-madder text-bone font-heading text-sm font-semibold flex items-center justify-center shrink-0 shadow-sm ring-4 ring-khadi">
+                <span className="w-8 h-8 rounded-full bg-madder text-bone font-heading text-sm font-semibold flex items-center justify-center shrink-0 shadow-sm ring-4 ring-khadi z-10">
                   2
-                </span>
-                <span className="hidden sm:inline-block text-xs text-ink-soft uppercase tracking-wider font-medium">
-                  Instant catalog
                 </span>
               </div>
 
-              <h3 className="font-heading text-xl text-ink font-semibold mb-3">
-                The listing appears
+              <h3 className="font-heading text-xl text-ink font-semibold mb-3 [text-wrap:balance]">
+                Listing
               </h3>
 
               {/* Hang Tag Shape with Punched Hole */}
@@ -151,7 +136,7 @@ export const OneMakerSection: React.FC = () => {
                   <div className="text-xs text-madder font-medium mb-1">
                     Handloom textile
                   </div>
-                  <h4 className="font-heading text-lg text-ink font-semibold leading-snug mb-1">
+                  <h4 className="font-heading text-lg text-ink font-semibold leading-snug mb-1 [text-wrap:balance]">
                     Sambalpuri Bandha silk saree
                   </h4>
                   <p className="text-sm text-ink font-medium">
@@ -166,93 +151,83 @@ export const OneMakerSection: React.FC = () => {
                   </div>
                 </div>
 
-                <p className="text-xs text-ink-soft/90 mt-4 pt-3 border-t border-clay/40">
+                <p className="text-xs text-ink-soft/90 mt-4 pt-3 border-t border-clay/40 [text-wrap:pretty]">
                   Written in Odia, English and Hindi.
                 </p>
               </div>
             </div>
 
-            {/* ─── STOP 3: A fair price is set ─────────────────────────────── */}
+            {/* ─── STOP 3: Price ────────────────────────────────────────────── */}
             <div className="flex flex-col relative pl-12 lg:pl-0">
               {/* Marker with number */}
               <div className="flex items-center gap-3 mb-6 absolute left-0 top-0 lg:static">
-                <span className="w-8 h-8 rounded-full bg-madder text-bone font-heading text-sm font-semibold flex items-center justify-center shrink-0 shadow-sm ring-4 ring-khadi">
+                <span className="w-8 h-8 rounded-full bg-madder text-bone font-heading text-sm font-semibold flex items-center justify-center shrink-0 shadow-sm ring-4 ring-khadi z-10">
                   3
-                </span>
-                <span className="hidden sm:inline-block text-xs text-ink-soft uppercase tracking-wider font-medium">
-                  Transparent math
                 </span>
               </div>
 
-              <h3 className="font-heading text-xl text-ink font-semibold mb-3">
-                A fair price is set
+              <h3 className="font-heading text-xl text-ink font-semibold mb-3 [text-wrap:balance]">
+                Price
               </h3>
 
-              {/* Ledger Format with Dotted Leaders & Tabular Figures */}
+              {/* Ledger Format with Dotted Leaders & Right-Aligned Figures in Grid */}
               <div className="bg-parchment border border-clay/70 rounded-[4px] p-6 shadow-xs flex-1 flex flex-col justify-between font-body text-sm text-ink">
                 <div className="space-y-2">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-ink-soft whitespace-nowrap">Materials reimbursed</span>
-                    <span className="border-b border-dotted border-clay flex-1 mx-1" aria-hidden="true" />
-                    <span className="tabular-nums font-medium">{formatINR(materials)}</span>
+                  <div className="grid grid-cols-[1fr_auto] gap-x-4 items-baseline min-w-0">
+                    <span className="text-ink-soft">Materials reimbursed</span>
+                    <span className="tabular-nums font-medium text-right">{formatINR(materials)}</span>
                   </div>
 
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-ink-soft whitespace-nowrap">Artisan labour (36h × ₹275)</span>
-                    <span className="border-b border-dotted border-clay flex-1 mx-1" aria-hidden="true" />
-                    <span className="tabular-nums font-medium">{formatINR(labour)}</span>
+                  <div className="grid grid-cols-[1fr_auto] gap-x-4 items-baseline min-w-0">
+                    <span className="text-ink-soft">Labour (36h × ₹275)</span>
+                    <span className="tabular-nums font-medium text-right">{formatINR(labour)}</span>
                   </div>
 
-                  <div className="pt-2 border-t border-clay/40 flex items-baseline justify-between gap-2 text-neem font-semibold">
-                    <span className="whitespace-nowrap">Artisan receives</span>
-                    <span className="border-b border-dotted border-neem/40 flex-1 mx-1" aria-hidden="true" />
-                    <span className="tabular-nums">{formatINR(makerTotal)}</span>
+                  <div className="pt-2 border-t border-clay/40 grid grid-cols-[1fr_auto] gap-x-4 items-baseline min-w-0 text-neem font-semibold">
+                    <span>Maker receives</span>
+                    <span className="tabular-nums text-right">{formatINR(makerTotal)}</span>
                   </div>
 
-                  <div className="flex items-baseline justify-between gap-2 text-ink-soft">
-                    <span className="whitespace-nowrap">Milaan fee (8%)</span>
-                    <span className="border-b border-dotted border-clay flex-1 mx-1" aria-hidden="true" />
-                    <span className="tabular-nums">{formatINR(milaanFee)}</span>
+                  <div className="grid grid-cols-[1fr_auto] gap-x-4 items-baseline min-w-0 text-ink-soft">
+                    <span>Milaan fee (8%)</span>
+                    <span className="tabular-nums text-right">{formatINR(milaanFee)}</span>
                   </div>
 
-                  <div className="flex items-baseline justify-between gap-2 text-ink-soft">
-                    <span className="whitespace-nowrap">Insured shipping</span>
-                    <span className="border-b border-dotted border-clay flex-1 mx-1" aria-hidden="true" />
-                    <span className="tabular-nums">{formatINR(shipping)}</span>
+                  <div className="grid grid-cols-[1fr_auto] gap-x-4 items-baseline min-w-0 text-ink-soft">
+                    <span>Shipping</span>
+                    <span className="tabular-nums text-right">{formatINR(shipping)}</span>
                   </div>
                 </div>
 
-                <div className="pt-3 mt-3 border-t border-ink/20 flex items-baseline justify-between font-semibold text-base text-ink">
-                  <span>Buyer total</span>
-                  <span className="tabular-nums text-lg font-bold">{formatINR(buyerTotal)}</span>
+                <div className="pt-3 mt-3 border-t border-ink/20 grid grid-cols-[1fr_auto] gap-x-4 items-baseline min-w-0 font-semibold text-base text-ink">
+                  <span>Total</span>
+                  <span className="tabular-nums text-lg font-bold text-right">{formatINR(buyerTotal)}</span>
                 </div>
               </div>
             </div>
 
-            {/* ─── STOP 4: The buyer pays the maker ────────────────────────── */}
+            {/* ─── STOP 4: Payment ──────────────────────────────────────────── */}
             <div className="flex flex-col relative pl-12 lg:pl-0">
               {/* Marker with number */}
               <div className="flex items-center gap-3 mb-6 absolute left-0 top-0 lg:static">
-                <span className="w-8 h-8 rounded-full bg-madder text-bone font-heading text-sm font-semibold flex items-center justify-center shrink-0 shadow-sm ring-4 ring-khadi">
+                <span className="w-8 h-8 rounded-full bg-madder text-bone font-heading text-sm font-semibold flex items-center justify-center shrink-0 shadow-sm ring-4 ring-khadi z-10">
                   4
-                </span>
-                <span className="hidden sm:inline-block text-xs text-neem uppercase tracking-wider font-semibold">
-                  Direct transfer
                 </span>
               </div>
 
-              <h3 className="font-heading text-xl text-ink font-semibold mb-3">
-                The buyer pays the maker
+              <h3 className="font-heading text-xl text-ink font-semibold mb-3 [text-wrap:balance]">
+                Payment
               </h3>
 
-              <div className="bg-parchment border border-clay/70 rounded-[4px] p-6 shadow-xs flex-1 flex flex-col justify-between">
+              {/* No card borders or backgrounds on Stop 4 */}
+              <div className="flex-1 flex flex-col justify-between">
                 <div>
-                  <p className="text-sm text-ink-soft leading-relaxed mb-4 max-w-[62ch]">
+                  <p className="text-sm text-ink-soft leading-relaxed mb-4 max-w-[62ch] [text-wrap:pretty]">
                     Funds transfer directly to Minati and Dinabandhu upon dispatch without middlemen holding back earnings.
                   </p>
 
                   <div className="bg-neem/10 border border-neem/30 rounded-[4px] p-4 text-center">
-                    <div className="text-xs text-neem font-medium uppercase tracking-wide mb-1">
+                    <div className="text-xs text-neem font-medium mb-1">
                       Maker receives
                     </div>
                     <div className="font-heading text-3xl text-neem font-bold tabular-nums">
@@ -264,7 +239,7 @@ export const OneMakerSection: React.FC = () => {
                   </div>
                 </div>
 
-                <p className="text-xs text-ink-soft mt-4 pt-3 border-t border-clay/40">
+                <p className="text-xs text-ink-soft mt-4 pt-3 border-t border-clay/40 [text-wrap:pretty]">
                   Example calculation for illustrative transparency.
                 </p>
               </div>

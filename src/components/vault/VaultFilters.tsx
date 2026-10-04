@@ -40,6 +40,9 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
   categories = [],
   onSelectCategory,
 }) => {
+  const displayedMetas = categories.map((c) => REAL_META_BY_CAT[c.id]).filter(Boolean);
+  const allSameMeta = displayedMetas.length > 0 && displayedMetas.every((m) => m === displayedMetas[0]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -57,6 +60,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
           };
           const metaLine = REAL_META_BY_CAT[cat.id];
           const isFolkArt = cat.id === 'Folk & Tribal Art';
+          const isStone = cat.id === 'Stone & Marble Carving';
 
           return (
             <button
@@ -69,21 +73,67 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
               {/* Image Container on Top — NO dark scrim */}
               <div className={`relative w-full ${layout.aspect} overflow-hidden bg-parchment`}>
                 {isFolkArt ? (
-                  // Typographic placeholder on clay as requested in spec
+                  // Madhubani-style line pattern inline SVG on warm clay placeholder
                   <div className="w-full h-full bg-clay/35 border-b border-clay/50 flex flex-col items-center justify-center p-8 text-center relative select-none">
+                    <svg
+                      className="absolute inset-2 w-[calc(100%-16px)] h-[calc(100%-16px)] pointer-events-none text-clay"
+                      preserveAspectRatio="none"
+                      viewBox="0 0 200 240"
+                      fill="none"
+                      stroke="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="3" width="194" height="234" strokeWidth="1.2" />
+                      <rect x="8" y="8" width="184" height="224" strokeWidth="0.8" />
+                      <path d="M 8,20 L 20,8 M 8,14 L 14,8" strokeWidth="0.8" />
+                      <path d="M 192,20 L 180,8 M 192,14 L 186,8" strokeWidth="0.8" />
+                      <path d="M 8,220 L 20,232 M 8,226 L 14,232" strokeWidth="0.8" />
+                      <path d="M 192,220 L 180,232 M 192,226 L 186,232" strokeWidth="0.8" />
+                      <line x1="80" y1="3" x2="84" y2="8" strokeWidth="0.8" />
+                      <line x1="90" y1="3" x2="94" y2="8" strokeWidth="0.8" />
+                      <line x1="100" y1="3" x2="104" y2="8" strokeWidth="0.8" />
+                      <line x1="110" y1="3" x2="114" y2="8" strokeWidth="0.8" />
+                      <line x1="120" y1="3" x2="124" y2="8" strokeWidth="0.8" />
+                      <line x1="80" y1="227" x2="84" y2="232" strokeWidth="0.8" />
+                      <line x1="90" y1="227" x2="94" y2="232" strokeWidth="0.8" />
+                      <line x1="100" y1="227" x2="104" y2="232" strokeWidth="0.8" />
+                      <line x1="110" y1="227" x2="114" y2="232" strokeWidth="0.8" />
+                      <line x1="120" y1="227" x2="124" y2="232" strokeWidth="0.8" />
+                    </svg>
+                    <div className="relative z-10">
+                      <span className="text-xs text-ink-soft font-semibold mb-2 block">
+                        Living canvas tradition
+                      </span>
+                      <h4 className="font-heading text-2xl sm:text-3xl text-ink font-semibold leading-snug">
+                        Folk & Tribal Art
+                      </h4>
+                      <span className="text-xs text-ink-soft mt-3 font-body block">
+                        Madhubani · Pattachitra · Warli
+                      </span>
+                    </div>
+                  </div>
+                ) : isStone ? (
+                  // Typographic & stone jaali placeholder for Stone & Marble Carving
+                  <div className="w-full h-full bg-[#EADFD0] border-b border-clay/50 flex flex-col items-center justify-center p-8 text-center relative select-none">
                     <div
-                      className="absolute inset-2 border border-clay/60 border-dashed rounded-[2px] pointer-events-none"
+                      className="absolute inset-0 pointer-events-none opacity-20"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16 0 L32 16 L16 32 L0 16 Z' fill='none' stroke='%235A4C40' stroke-width='1'/%3E%3Crect x='8' y='8' width='16' height='16' fill='none' stroke='%235A4C40' stroke-width='0.8'/%3E%3Ccircle cx='16' cy='16' r='3' fill='none' stroke='%235A4C40' stroke-width='0.8'/%3E%3C/svg%3E")`,
+                      }}
                       aria-hidden="true"
                     />
-                    <span className="text-xs text-ink-soft uppercase tracking-wider font-semibold mb-2">
-                      Living canvas tradition
-                    </span>
-                    <h4 className="font-heading text-2xl sm:text-3xl text-ink font-semibold leading-snug">
-                      Folk & Tribal Art
-                    </h4>
-                    <span className="text-xs text-ink-soft mt-3 font-body">
-                      Madhubani · Pattachitra · Warli
-                    </span>
+                    <div className="relative z-10">
+                      <span className="text-xs text-ink-soft font-semibold mb-2 block">
+                        Architectural relief & jaali
+                      </span>
+                      <h4 className="font-heading text-2xl sm:text-3xl text-ink font-semibold leading-snug">
+                        Stone & Marble
+                      </h4>
+                      <span className="text-xs text-ink-soft mt-3 font-body block">
+                        Makrana · Pietra dura · Chlorite
+                      </span>
+                    </div>
                   </div>
                 ) : (
                   <img
@@ -112,7 +162,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                   </p>
                 </div>
 
-                {metaLine && (
+                {!allSameMeta && metaLine && (
                   <div className="text-xs text-ink-soft/80 pt-3 mt-3 border-t border-clay/30 font-body">
                     {metaLine}
                   </div>

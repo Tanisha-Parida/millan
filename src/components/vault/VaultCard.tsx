@@ -135,7 +135,7 @@ export const VaultCard: React.FC<VaultCardProps> = ({
         <div className="pt-3 border-t border-clay/30 space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-[11px] font-body text-ink-soft block uppercase tracking-wider">
+              <span className="text-[11px] font-body text-ink-soft block">
                 Artisan's price
               </span>
               <span className="text-base font-body font-bold text-ink tabular-nums">

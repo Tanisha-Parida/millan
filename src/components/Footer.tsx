@@ -1,5 +1,4 @@
 import React from 'react';
-import JharokhaArches from './ornament/JharokhaArches';
 import { TEAM_EMAIL, HACKATHON_NAME } from '../config';
 
 export const Footer: React.FC = () => {
@@ -8,14 +7,6 @@ export const Footer: React.FC = () => {
       id="charter"
       className="relative w-full bg-vat text-bone select-none overflow-hidden text-left"
     >
-      {/* Top Seam: Jharokha Arch Row from Khadi into Vat */}
-      <JharokhaArches
-        direction="down"
-        fillColor="var(--color-khadi)"
-        bgColor="var(--color-vat)"
-        height={24}
-        className="w-full"
-      />
 
       {/* Faint Jaali Perforated Lattice Pattern (4% opacity) */}
       <div

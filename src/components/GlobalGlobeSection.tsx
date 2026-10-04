@@ -40,14 +40,8 @@ export const GlobalGlobeSection: React.FC = () => {
         </Suspense>
       </div>
 
-      {/* Bottom Seam: Jharokha Arch Row from Vat into Khadi */}
-      <JharokhaArches
-        direction="up"
-        fillColor="var(--color-khadi)"
-        bgColor="var(--color-vat)"
-        height={24}
-        className="w-full"
-      />
+      {/* Divider into Footer (both are deep vat) */}
+      <div className="w-full border-b border-bone/10" aria-hidden="true" />
     </section>
   );
 };
