@@ -18,7 +18,14 @@ export function useModalA11y(isOpen: boolean, onClose: () => void) {
     const previouslyFocused = document.activeElement as HTMLElement | null;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    panelRef.current?.focus();
+
+    const panel = panelRef.current;
+    // Caller must set tabIndex={-1} on the panel so it is keyboard-focusable.
+    if (panel) {
+      panel.tabIndex = -1;
+      panel.setAttribute('data-modal-focus', 'true');
+      panel.focus();
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {

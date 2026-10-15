@@ -7,8 +7,14 @@ import {
 } from '../lib/pricing';
 import IkatBorder from './ornament/IkatBorder';
 
+/** Minimum fair-rate threshold (₹/hr). Rates below this get a warning. */
+const MIN_FAIR_RATE_PER_HOUR = 150;
+
 export const FairPriceCalculator: React.FC = () => {
   const [params, setParams] = useState<PricingInput>(DEFAULT_EXAMPLE);
+
+  // Derived: no state needed — recomputes on every render when params change.
+  const showRateWarning = params.ratePerHour < MIN_FAIR_RATE_PER_HOUR;
 
   const breakdown = computeBreakdown(params);
   const makerTotal = breakdown.materials + breakdown.labour;
@@ -19,6 +25,7 @@ export const FairPriceCalculator: React.FC = () => {
   const labourPct = total > 0 ? (breakdown.labour / total) * 100 : 0;
   const feePct = total > 0 ? (breakdown.milaanFee / total) * 100 : 0;
   const shippingPct = total > 0 ? (breakdown.shipping / total) * 100 : 0;
+
 
   const handleReset = () => {
     setParams(DEFAULT_EXAMPLE);
@@ -182,6 +189,16 @@ export const FairPriceCalculator: React.FC = () => {
                 <span>₹150/hr (Fair wage base)</span>
                 <span>₹600/hr (Master kaarigar)</span>
               </div>
+              {showRateWarning && (
+                <p
+                  role="alert"
+                  className="text-xs text-madder font-medium mt-2 flex items-center gap-1"
+                >
+                  <span aria-hidden="true">⚠</span>
+                  Below the ₹{MIN_FAIR_RATE_PER_HOUR}/hr fair-wage base — the
+                  maker may not earn a living wage at this rate.
+                </p>
+              )}
             </div>
 
             {/* 4. Shipping Cost */}

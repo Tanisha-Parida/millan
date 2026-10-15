@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "typecheck:api": "tsc --noEmit -p tsconfig.api.json",
     "lint": "eslint .",
+    "test": "vitest",
     "format": "prettier --write .",
     "check-links": "node scripts/check-links.mjs"
   },
@@ -36,6 +37,7 @@
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.71.0",
-    "vite": "7.3.2"
+    "vite": "7.3.2",
+    "vitest": "^4.1.12"
   }
 }

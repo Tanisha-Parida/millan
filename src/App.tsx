@@ -43,6 +43,27 @@ function loadCartIds(): string[] {
   return [];
 }
 
+/** Load voice-published items saved by an earlier session. Malformed
+ * entries are dropped; a corrupt store yields an empty list. */
+function loadPublishedItems(): CraftItem[] {
+  try {
+    const raw = localStorage.getItem('milaan-published-items');
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (x): x is CraftItem =>
+        typeof x === 'object' &&
+        x !== null &&
+        typeof (x as CraftItem).id === 'string' &&
+        typeof (x as CraftItem).title === 'string' &&
+        typeof (x as CraftItem).priceINR === 'number'
+    );
+  } catch {
+    /* ignore */
+  }
+  return [];
+}
+
 // ─── toast state ─────────────────────────────────────────────────────────────
 
 interface Toast {
@@ -59,8 +80,8 @@ export default function App() {
   const [isCommissionModalOpen, setIsCommissionModalOpen] = useState(false);
   const [activeCurrency, setActiveCurrency] = useState<CurrencyCode>('INR');
 
-  // Voice-published items only exist in session; they are also catalogued by id.
-  const [publishedItems, setPublishedItems] = useState<CraftItem[]>([]);
+  // Voice-published items: seeded from localStorage so they survive a refresh.
+  const [publishedItems, setPublishedItems] = useState<CraftItem[]>(loadPublishedItems);
 
   // Cart stores only ids; hydrated on render inside the modal.
   const [cartIds, setCartIds] = useState<string[]>(loadCartIds);
@@ -69,6 +90,11 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('milaan-cart-ids', JSON.stringify(cartIds));
   }, [cartIds]);
+
+  // Persist voice-published items so they survive a page refresh.
+  useEffect(() => {
+    localStorage.setItem('milaan-published-items', JSON.stringify(publishedItems));
+  }, [publishedItems]);
 
   // ── active-section & hero-visibility via IntersectionObserver ────────────────
   const [isScrolledPastHero, setIsScrolledPastHero] = useState(false);

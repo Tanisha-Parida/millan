@@ -2,7 +2,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,5 +31,10 @@ export default defineConfig({
     host: true,
     port: 5173,
     allowedHosts: true,
+  },
+  test: {
+    // Run tests in a Node environment — no browser/DOM needed for pure-function tests.
+    environment: 'node',
+    include: ['src/__tests__/**/*.test.ts'],
   },
 });
