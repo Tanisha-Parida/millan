@@ -8,7 +8,7 @@ import {
 } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useLenis } from '../hooks/useLenis';
-import JharokhaArches from './ornament/JharokhaArches';
+
 
 export interface ScrollDoorHeroProps {
   onOpenVoiceStudio?: () => void;
@@ -121,14 +121,14 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
               }}
             />
 
-            {/* Seamless feathered atmospheric overlays — softly curved, no hard box edges */}
-            <div className="absolute inset-0 bg-gradient-to-t from-vat/90 via-vat/35 to-vat/60 pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-r from-vat/70 via-transparent to-vat/70 pointer-events-none" />
+            {/* Seamless feathered atmospheric overlays — warm natural workshop tones, no corporate blue */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1F1914]/85 via-transparent to-[#1F1914]/50 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#1F1914]/60 via-transparent to-[#1F1914]/60 pointer-events-none" />
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
                 background:
-                  'radial-gradient(ellipse at 50% 50%, rgba(217, 162, 27, 0.12) 0%, rgba(168, 64, 47, 0.08) 50%, rgba(20, 26, 59, 0.5) 85%)',
+                  'radial-gradient(ellipse at 50% 50%, rgba(217, 162, 27, 0.14) 0%, rgba(42, 33, 26, 0.15) 50%, rgba(31, 25, 20, 0.65) 90%)',
               }}
             />
           </div>
@@ -203,19 +203,19 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
         <motion.div
           className="hero-overlay-ui flex flex-col items-center justify-center text-center px-4"
           style={{
-            opacity: reduced ? 1 : typographyOpacity,
+            opacity: typographyOpacity,
             y: reduced ? 0 : typographyTranslateY,
-            pointerEvents: reduced ? 'auto' : uiLive ? 'auto' : 'none',
+            pointerEvents: uiLive ? 'auto' : 'none',
           }}
         >
           <div className="max-w-2xl mx-auto flex flex-col items-center gap-6 mt-16 relative px-6 py-8">
-            {/* Soft radial scrim behind the text for contrast without looking like a box */}
+            {/* Soft radial scrim behind the text for contrast — warm natural tone, zero blue */}
             <div
               className="absolute inset-0 -z-10 pointer-events-none rounded-full"
               style={{
                 background:
-                  'radial-gradient(ellipse closest-side at center, rgba(20, 26, 59, 0.72) 0%, rgba(20, 26, 59, 0.4) 60%, transparent 100%)',
-                filter: 'blur(20px)',
+                  'radial-gradient(ellipse closest-side at center, rgba(31, 25, 20, 0.75) 0%, rgba(31, 25, 20, 0.35) 65%, transparent 100%)',
+                filter: 'blur(24px)',
               }}
             />
 
@@ -246,13 +246,10 @@ export const ScrollDoorHero: React.FC<ScrollDoorHeroProps> = ({ onExploreVault }
           </span>
         </motion.div>
 
-        {/* Bottom of hero: scallops in the khadi colour rising into the image */}
-        <JharokhaArches
-          direction="up"
-          fillColor="var(--color-khadi)"
-          bgColor="transparent"
-          height={32}
-          className="absolute bottom-0 left-0 right-0 z-30"
+        {/* Bottom of hero: soft, natural gradient fade into the khadi section below */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-khadi via-khadi/60 to-transparent pointer-events-none z-30"
+          aria-hidden="true"
         />
       </div>
     </section>
