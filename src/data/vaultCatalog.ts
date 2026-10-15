@@ -41,7 +41,7 @@ export const CRAFT_CATEGORIES: CraftCategory[] = [
     title: 'Stone & Marble Carving',
     subtitle: 'Marble jaali & relief',
     description: 'Agra gemstone pietra dura inlay, Makrana marble jaalis and chlorite relief.',
-    image: '',
+    image: '/images/stone-marble.webp',
   },
   {
     id: 'Folk & Tribal Art',

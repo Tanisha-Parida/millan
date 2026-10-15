@@ -362,7 +362,7 @@ export const VAULT_ITEMS: CraftItem[] = [
     subCategory: 'Parchin Kari Inlay',
     region: 'Agra',
     state: 'Uttar Pradesh',
-    image: '/images/jharokha-gate.webp',
+    image: '/images/stone-marble.webp',
     priceINR: 12500,
     artisan: 'Ustad Munna Khan',
     lineage: 'Taj Mahal Pietra Dura Master Dynasty',
