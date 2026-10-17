@@ -1,10 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { m as motion } from 'framer-motion';
-import { ShoppingBag, X, ShieldCheck, CheckCircle2, Send } from 'lucide-react';
+import {
+  ShoppingBag,
+  X,
+  ShieldCheck,
+  CheckCircle2,
+  Send,
+  MapPin,
+  LocateFixed,
+  Crosshair,
+  Loader2,
+} from 'lucide-react';
 import type { CraftItem } from '../types/craft';
 import { formatPrice, type CurrencyCode } from '../lib/currency';
 import { useModalA11y } from '../hooks/useModalA11y';
 import { VAULT_ITEMS } from '../data/vaultItems';
+
+interface GpsMetadata {
+  coords: string;
+  accuracy: number;
+  latitude: number;
+  longitude: number;
+}
+
+function formatCoordinates(lat: number, lon: number): string {
+  const latDir = lat >= 0 ? 'N' : 'S';
+  const lonDir = lon >= 0 ? 'E' : 'W';
+  return `${Math.abs(lat).toFixed(4)}° ${latDir}, ${Math.abs(lon).toFixed(4)}° ${lonDir}`;
+}
 
 interface CommissionModalProps {
   isOpen: boolean;
@@ -28,6 +51,90 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
   const [selectedGuild, setSelectedGuild] = useState('Sambalpuri Handloom Silk (Odisha)');
   const [patronName, setPatronName] = useState('');
   const [destinationCity, setDestinationCity] = useState('');
+  const [isLocatingGps, setIsLocatingGps] = useState(false);
+  const [gpsMetadata, setGpsMetadata] = useState<GpsMetadata | null>(null);
+  const [gpsError, setGpsError] = useState<string | null>(null);
+
+  const handleDetectGpsLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setGpsError('Geolocation is not supported by your browser or device.');
+      return;
+    }
+
+    setIsLocatingGps(true);
+    setGpsError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude, accuracy } = position.coords;
+        const coordsStr = formatCoordinates(latitude, longitude);
+
+        // Attempt reverse geocoding for a human-readable locality & city
+        let humanAddress = '';
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 4500);
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=16&addressdetails=1`,
+            {
+              headers: { 'Accept-Language': 'en' },
+              signal: controller.signal,
+            }
+          );
+          clearTimeout(timer);
+          if (res.ok) {
+            const data = await res.json();
+            const addr = data.address || {};
+            const locality = addr.suburb || addr.neighbourhood || addr.residential || addr.road || '';
+            const city = addr.city || addr.town || addr.village || addr.county || addr.state_district || '';
+            const state = addr.state || '';
+            const postal = addr.postcode ? ` - ${addr.postcode}` : '';
+            const parts = [locality, city, state].filter(Boolean);
+            if (parts.length > 0) {
+              humanAddress = `${parts.join(', ')}${postal}`;
+            }
+          }
+        } catch {
+          /* ignore network error on reverse-geocode */
+        }
+
+        const finalLocationText = humanAddress
+          ? `${humanAddress} (${coordsStr})`
+          : `GPS: ${coordsStr}`;
+
+        setDestinationCity(finalLocationText);
+        setGpsMetadata({
+          coords: coordsStr,
+          accuracy,
+          latitude,
+          longitude,
+        });
+        setIsLocatingGps(false);
+      },
+      (error) => {
+        setIsLocatingGps(false);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setGpsError('GPS access was denied. You can enter your delivery location manually.');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            setGpsError('GPS position unavailable. Please type your location manually.');
+            break;
+          case error.TIMEOUT:
+            setGpsError('GPS request timed out. Please try again or type manually.');
+            break;
+          default:
+            setGpsError('Could not retrieve GPS location. Please type manually.');
+            break;
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  }, []);
   const [customBrief, setCustomBrief] = useState('');
   const [targetBudgetINR, setTargetBudgetINR] = useState(15000);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -211,17 +318,81 @@ export const CommissionModal: React.FC<CommissionModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs text-ink-soft font-medium mb-1">
-                  Delivery location:
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="City, Country"
-                  value={destinationCity}
-                  onChange={(e) => setDestinationCity(e.target.value)}
-                  className="w-full h-11 px-3 rounded-[6px] bg-khadi border border-clay text-ink text-sm focus:outline-none focus:border-madder"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs text-ink-soft font-medium">
+                    Delivery location:
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleDetectGpsLocation}
+                    disabled={isLocatingGps}
+                    className="inline-flex items-center gap-1.5 text-xs text-madder hover:text-madder-dark font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    title="Detect precise GPS location from your device"
+                  >
+                    {isLocatingGps ? (
+                      <>
+                        <Loader2 size={12} className="animate-spin text-madder" />
+                        <span>Locating device…</span>
+                      </>
+                    ) : (
+                      <>
+                        <LocateFixed size={13} className="text-madder" />
+                        <span>Use device GPS</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-ink-soft/60">
+                    <MapPin size={16} />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    placeholder="City, Country or click 'Use device GPS'"
+                    value={destinationCity}
+                    onChange={(e) => {
+                      setDestinationCity(e.target.value);
+                      if (gpsMetadata) setGpsMetadata(null);
+                      if (gpsError) setGpsError(null);
+                    }}
+                    className="w-full h-11 pl-9 pr-10 rounded-[6px] bg-khadi border border-clay text-ink text-sm focus:outline-none focus:border-madder transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleDetectGpsLocation}
+                    disabled={isLocatingGps}
+                    title="Get precise GPS coordinates"
+                    aria-label="Get precise GPS coordinates"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-ink-soft/70 hover:text-madder transition-colors cursor-pointer"
+                  >
+                    {isLocatingGps ? (
+                      <Loader2 size={16} className="animate-spin text-madder" />
+                    ) : (
+                      <Crosshair size={16} className={gpsMetadata ? 'text-neem' : ''} />
+                    )}
+                  </button>
+                </div>
+
+                {gpsMetadata && (
+                  <div className="flex items-center justify-between text-[11px] text-neem font-medium mt-1.5 px-0.5">
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-neem animate-pulse" />
+                      Precise GPS locked ({gpsMetadata.coords})
+                    </span>
+                    <span className="text-ink-soft">
+                      ±{Math.round(gpsMetadata.accuracy)}m accuracy
+                    </span>
+                  </div>
+                )}
+
+                {gpsError && (
+                  <p role="alert" className="text-[11px] text-madder font-medium mt-1.5 flex items-center gap-1">
+                    <span>⚠</span>
+                    <span>{gpsError}</span>
+                  </p>
+                )}
               </div>
             </div>
 
