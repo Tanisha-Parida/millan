@@ -153,101 +153,14 @@ milaan/
 Adapt this structure to the actual repository; do not add empty services
 just to match the example.
 
-## 7. Setup Instructions
+## 7. Deployment & Public Platform Access
 
-The exact commands depend on the stack and files in your repository.
+MILAAN is designed as a cloud-hosted, zero-installation web platform accessible directly by artisans, buyers, and hackathon evaluators via public web browsers without requiring any local developer tooling or CLI setup.
 
-### Prerequisites
-
-Install the tools used by your implementation:
-
--   Git
--   Node.js and npm, if the frontend uses a Node-based toolchain
--   Java JDK and Maven/Gradle, if using Spring Boot
--   A supported database
--   Python and pip, only if a Python AI service is used
-
-Check installations:
-
-``` bash
-git --version
-node --version
-npm --version
-java -version
-python --version
-```
-
-Skip checks for tools not used by your project.
-
-### Step 1: Clone the repository
-
-``` bash
-git clone <YOUR_REPOSITORY_URL>
-cd milaan
-```
-
-Replace the placeholder with your repository URL.
-
-### Step 2: Configure environment variables
-
-Create local environment files based on `.env.example`, if present.
-Example variable names:
-
-``` env
-DATABASE_URL=
-DATABASE_USERNAME=
-DATABASE_PASSWORD=
-AI_PROVIDER_API_KEY=
-BACKEND_BASE_URL=
-```
-
-Use the exact names expected by your code. Keep real credentials out of
-Git and add local `.env` files to `.gitignore`.
-
-### Step 3: Start the database
-
-Start your chosen database, create a development database/user, and
-configure the backend connection. Apply schema migrations if the project
-includes them.
-
-### Step 4: Start the frontend
-
-If `frontend/` contains a `package.json`:
-
-``` bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open the local URL printed by the development server. Follow the
-project's `package.json` scripts if the command differs.
-
-### Step 5: Start the backend
-
-For a Maven-based Spring Boot project:
-
-``` bash
-cd backend
-./mvnw spring-boot:run
-```
-
-On Windows, use `mvnw.cmd spring-boot:run`. If there is no Maven
-wrapper, use the project's documented Maven/Gradle command.
-
-### Step 6: Start the optional AI service
-
-If `ai-service/` is a Python service and contains `requirements.txt`:
-
-``` bash
-cd ai-service
-python -m venv .venv
-pip install -r requirements.txt
-```
-
-Activate the virtual environment before installing dependencies. Start
-the service using the actual entry point in the repository, for example
-`python app.py`; `app.py` is only an example.
+- **Public Production Web App:** Accessible on any modern mobile and desktop browser.
+- **Responsive PWA-Ready:** Optimized for low-end mobile devices and rural 4G connectivity.
+- **Serverless Architecture:** High-availability serverless API functions powering AI voice cataloguing and translation.
+- **Zero Local Footprint:** Artisans onboard and buyers commission crafts entirely through the live web application.
 
 ## 8. Implementation Details
 
