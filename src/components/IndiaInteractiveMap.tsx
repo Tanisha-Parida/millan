@@ -6,6 +6,7 @@ import {
   Search,
   X,
   Volume2,
+  VolumeX,
 } from 'lucide-react';
 import {
   CONSTELLATION_HOTSPOTS,
@@ -14,6 +15,7 @@ import {
   type ConstellationHotspot,
 } from '../data/indiaCraftData';
 import { VAULT_ITEMS } from '../data/vaultItems';
+import { playDialectVoice, stopDialectVoice } from '../lib/speechAudio';
 
 interface IndiaInteractiveMapProps {
   onExploreCrafts?: (stateName?: string) => void;
@@ -333,15 +335,26 @@ export const IndiaInteractiveMap: React.FC<IndiaInteractiveMapProps> = ({
                         <button
                           type="button"
                           onClick={() => {
-                            setPlayingAudioCraft(
-                              playingAudioCraft === craft.name ? null : craft.name
-                            );
+                            if (playingAudioCraft === craft.name) {
+                              setPlayingAudioCraft(null);
+                              stopDialectVoice();
+                            } else {
+                              setPlayingAudioCraft(craft.name);
+                              const speech = `${craft.name}. ${craft.significance}. Crafted by ${craft.communities} in ${selectedDossier.name}.`;
+                              playDialectVoice(
+                                speech,
+                                selectedDossier.id === 'odisha' ? 'or-IN' : 'hi-IN',
+                                () => setPlayingAudioCraft(null),
+                                () => setPlayingAudioCraft(null)
+                              );
+                            }
                           }}
-                          className="flex items-center gap-1 text-madder hover:text-madder-dark font-medium cursor-pointer"
+                          className="flex items-center gap-1.5 text-madder hover:text-madder-dark font-medium cursor-pointer"
+                          title="Listen to dialect voice narrative"
                         >
-                          <Volume2 size={13} />
+                          {playingAudioCraft === craft.name ? <VolumeX size={13} /> : <Volume2 size={13} />}
                           <span>
-                            {playingAudioCraft === craft.name ? 'Listening...' : 'Dialect'}
+                            {playingAudioCraft === craft.name ? 'Stop Audio' : 'Dialect Voice'}
                           </span>
                         </button>
                       </div>

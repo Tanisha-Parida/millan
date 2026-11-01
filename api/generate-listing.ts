@@ -78,14 +78,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  // Key check
+  // Key check - supports Gemini or Groq
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey || apiKey === 'your-gemini-api-key-here') {
-    return res.status(503).json({
-      error: 'GEMINI_API_KEY not configured',
-      offline: true,
-    });
-  }
+  const groqKey = process.env.VITE_GROQ_API_KEY || process.env.GROQ_API_KEY || '';
 
   // Parse body
   const { transcript, language, imageBase64 } = req.body as {
@@ -98,7 +93,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'transcript is required (min 3 chars)' });
   }
 
-  // Build the Gemini prompt
+  // Build the prompt
   const systemPrompt = `You are a craft listing assistant for MILAAN, a platform connecting Indian artisans with buyers. An artisan has described their handmade craft in their own words. Generate a product listing.
 
 Return ONLY a JSON object with these exact fields:
@@ -115,108 +110,105 @@ Guidelines:
 - Use the artisan's own description to infer materials, hours, and craft type.
 - Suggest a fair price in INR based on materials + labor (₹150-300/hr for skilled crafts).
 - Be accurate and honest — do not invent details the artisan didn't mention.
-- If a photo is provided, use visual details to improve the listing.
 - Return ONLY the JSON. No markdown, no explanation.`;
 
   const userMessage = `Language: ${language || 'unknown'}
 Artisan's description: "${transcript.trim()}"`;
 
-  // Build request parts
-  const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [
-    { text: userMessage },
-  ];
-
-  // If an image was provided, add it
-  if (imageBase64 && typeof imageBase64 === 'string' && imageBase64.length > 100) {
-    // Extract mime type if it's a data URL, otherwise assume JPEG
-    let mimeType = 'image/jpeg';
-    let data = imageBase64;
-    if (imageBase64.startsWith('data:')) {
-      const match = imageBase64.match(/^data:(image\/\w+);base64,(.+)$/);
-      if (match) {
-        mimeType = match[1];
-        data = match[2];
-      }
-    }
-    parts.push({
-      inlineData: { mimeType, data },
-    });
-  }
-
-  try {
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-    const geminiRes = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts,
-          },
-        ],
-        systemInstruction: {
-          parts: [{ text: systemPrompt }],
-        },
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 600,
-          responseMimeType: 'application/json',
-        },
-      }),
-    });
-
-    if (!geminiRes.ok) {
-      const errText = await geminiRes.text();
-      console.error('Gemini API error:', geminiRes.status, errText);
-      return res.status(502).json({
-        error: 'AI service unavailable',
-        offline: true,
-      });
-    }
-
-    const geminiData = (await geminiRes.json()) as {
-      candidates?: Array<{
-        content?: { parts?: Array<{ text?: string }> };
-      }>;
-    };
-
-    const rawText =
-      geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    if (!rawText) {
-      return res.status(502).json({
-        error: 'Empty response from AI',
-        offline: true,
-      });
-    }
-
-    const cleaned = stripCodeFences(rawText);
-    let parsed: unknown;
+  // If Gemini is available, try Gemini first
+  if (apiKey && apiKey !== 'your-gemini-api-key-here') {
     try {
-      parsed = JSON.parse(cleaned);
-    } catch {
-      console.error('Failed to parse Gemini response:', cleaned.slice(0, 200));
-      return res.status(502).json({
-        error: 'Could not parse AI response',
-        offline: true,
-      });
-    }
+      const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [
+        { text: userMessage },
+      ];
 
-    if (!validateListing(parsed)) {
-      return res.status(502).json({
-        error: 'AI returned incomplete listing',
-        offline: true,
-      });
-    }
+      if (imageBase64 && typeof imageBase64 === 'string' && imageBase64.length > 100) {
+        let mimeType = 'image/jpeg';
+        let data = imageBase64;
+        if (imageBase64.startsWith('data:')) {
+          const match = imageBase64.match(/^data:(image\/\w+);base64,(.+)$/);
+          if (match) {
+            mimeType = match[1];
+            data = match[2];
+          }
+        }
+        parts.push({
+          inlineData: { mimeType, data },
+        });
+      }
 
-    return res.status(200).json(parsed);
-  } catch (err) {
-    console.error('generate-listing error:', err);
-    return res.status(500).json({
-      error: 'Internal server error',
-      offline: true,
-    });
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const geminiRes = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts }],
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 600,
+            responseMimeType: 'application/json',
+          },
+        }),
+      });
+
+      if (geminiRes.ok) {
+        const geminiData = (await geminiRes.json()) as {
+          candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        };
+        const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        if (rawText) {
+          const cleaned = stripCodeFences(rawText);
+          const parsed = JSON.parse(cleaned);
+          if (validateListing(parsed)) {
+            return res.status(200).json(parsed);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Gemini attempt failed, falling back to Groq:', err);
+    }
   }
+
+  // Fallback to Groq AI
+  if (groqKey) {
+    try {
+      const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${groqKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'qwen/qwen3.8-27b',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0.3,
+        }),
+      });
+
+      if (groqRes.ok) {
+        const groqData = (await groqRes.json()) as {
+          choices?: Array<{ message?: { content?: string } }>;
+        };
+        const content = groqData.choices?.[0]?.message?.content;
+        if (content) {
+          const parsed = JSON.parse(content);
+          if (validateListing(parsed)) {
+            return res.status(200).json(parsed);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Groq generation error:', err);
+    }
+  }
+
+  return res.status(503).json({
+    error: 'AI service unavailable',
+    offline: true,
+  });
 }

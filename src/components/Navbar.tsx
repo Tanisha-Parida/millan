@@ -61,21 +61,17 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="w-full select-none bg-khadi border-b border-clay">
       <div className="h-[72px] flex items-center">
         <div className="site-container flex items-center justify-between gap-4">
-          {/* Brand Wordmark: Rozha One + Devanagari मिलान + 8-point star */}
+          {/* Brand Wordmark with official Artisan Emblem */}
           <a
             href="#hero-portal"
-            className="flex items-center gap-2 text-left group"
+            className="flex items-center gap-2.5 text-left group"
             aria-label="Milaan home"
           >
-            {/* 8-point star craft mark */}
-            <svg
-              className="w-5 h-5 text-madder shrink-0"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <polygon points="12,2 14.5,8.5 21,7 16.5,12 21,17 14.5,15.5 12,22 9.5,15.5 3,17 7.5,12 3,7 9.5,8.5" />
-            </svg>
+            <img
+              src="/images/logo_mark.png"
+              alt="Milaan Emblem"
+              className="w-8 h-8 rounded-md shrink-0 object-contain"
+            />
             <div className="flex items-baseline gap-1.5">
               <span className="font-display text-2xl font-bold text-ink">
                 Milaan

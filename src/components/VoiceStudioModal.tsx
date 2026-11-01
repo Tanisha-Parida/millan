@@ -9,43 +9,14 @@ import {
   CheckCircle2,
   Loader2,
   AlertCircle,
+  Volume2,
+  VolumeX,
+  Sparkles,
 } from 'lucide-react';
 import type { CraftItem } from '../types/craft';
 import { useModalA11y } from '../hooks/useModalA11y';
 import { DIALECT_PRESETS, type DialectPreset } from '../data/dialectPresets';
-
-// ── SpeechRecognition browser types ──────────────────────────────────────────
-
-interface SpeechRecogResult {
-  readonly transcript: string;
-  readonly confidence: number;
-}
-
-interface SpeechRecogResultList {
-  readonly length: number;
-  [index: number]: { readonly [index: number]: SpeechRecogResult };
-}
-
-interface SpeechRecogEvent extends Event {
-  readonly results: SpeechRecogResultList;
-}
-
-interface SpeechRecogErrorEvent extends Event {
-  readonly error: string;
-}
-
-interface SpeechRecog extends EventTarget {
-  lang: string;
-  interimResults: boolean;
-  continuous: boolean;
-  maxAlternatives: number;
-  onresult: ((event: SpeechRecogEvent) => void) | null;
-  onerror: ((event: SpeechRecogErrorEvent) => void) | null;
-  onend: (() => void) | null;
-  start(): void;
-  stop(): void;
-  abort(): void;
-}
+import { playDialectVoice, stopDialectVoice } from '../lib/speechAudio';
 
 interface VoiceStudioModalProps {
   isOpen: boolean;
@@ -121,11 +92,7 @@ function resizeImage(file: File, maxDim: number): Promise<string> {
   });
 }
 
-function getSpeechRecognition(): { new (): SpeechRecog } | null {
-  if (typeof window === 'undefined') return null;
-  const w = window as unknown as Record<string, unknown>;
-  return (w.SpeechRecognition || w.webkitSpeechRecognition || null) as { new (): SpeechRecog } | null;
-}
+const GROQ_API_KEY = (import.meta.env.VITE_GROQ_API_KEY as string) || '';
 
 export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
   isOpen,
@@ -135,6 +102,7 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
   const [step, setStep] = useState<FlowStep>('record');
   const [selectedDialect, setSelectedDialect] = useState<DialectPreset>(DIALECT_PRESETS[0]);
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
@@ -147,14 +115,21 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
   const [editMaterials, setEditMaterials] = useState('');
   const [editPrice, setEditPrice] = useState<number>(0);
 
-  const recognitionRef = useRef<SpeechRecog | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const panelRef = useModalA11y(isOpen, onClose);
 
-  const speechSupported = typeof window !== 'undefined' && getSpeechRecognition() !== null;
-
   // Visualizer loop for waveform
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      stopDialectVoice();
+    };
+  }, []);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -174,67 +149,174 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
       for (let i = 0; i < bars; i++) {
         const x = i * (barWidth + spacing);
         let barHeight: number;
-        if (isRecording) {
+        if (isRecording || isPlayingAudio) {
           const t = Date.now() / 150 + i * 0.4;
           barHeight = Math.max(6, Math.abs(Math.sin(t)) * (height * 0.75));
         } else {
           barHeight = 4;
         }
         const y = (height - barHeight) / 2;
-        ctx.fillStyle = isRecording ? '#A8402F' : '#C9B79C';
+        ctx.fillStyle = isRecording ? '#A8402F' : isPlayingAudio ? '#2D6A4F' : '#C9B79C';
         ctx.beginPath();
         ctx.rect(x, y, barWidth, barHeight);
         ctx.fill();
       }
 
-      if (!prefersReducedMotion && isRecording) {
+      if (!prefersReducedMotion && (isRecording || isPlayingAudio)) {
         animationId = requestAnimationFrame(renderWave);
       }
     };
 
     renderWave();
     return () => cancelAnimationFrame(animationId);
-  }, [isRecording]);
+  }, [isRecording, isPlayingAudio]);
 
-  const startRecording = useCallback(() => {
-    const SR = getSpeechRecognition();
-    if (!SR) return;
+  const stopAudioPlayback = useCallback(() => {
+    stopDialectVoice();
+    setIsPlayingAudio(false);
+  }, []);
 
+  const playVoiceSample = useCallback(() => {
+    const textToSpeak = transcript.trim() || selectedDialect.speechAudioText;
+    setIsPlayingAudio(true);
+    playDialectVoice(
+      textToSpeak,
+      DIALECT_TO_LANG[selectedDialect.id] || 'or-IN',
+      () => setIsPlayingAudio(false),
+      () => setIsPlayingAudio(false)
+    );
+  }, [transcript, selectedDialect]);
+
+  const loadPresetSample = useCallback((preset: DialectPreset) => {
+    setSelectedDialect(preset);
+    setTranscript(preset.speechAudioText);
+    setPhotoPreview(preset.previewImage);
+    setPhotoBase64(preset.previewImage);
+    setErrorMsg(null);
+  }, []);
+
+  const startRecording = useCallback(async () => {
     setTranscript('');
     setErrorMsg(null);
     setIsRecording(true);
+    setIsTranscribing(false);
+    stopAudioPlayback();
 
-    const recognition = new SR();
-    recognition.lang = DIALECT_TO_LANG[selectedDialect.id] || 'hi-IN';
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognition.maxAlternatives = 1;
+    audioChunksRef.current = [];
 
-    recognition.onresult = (event: SpeechRecogEvent) => {
-      let finalText = '';
-      for (let i = 0; i < event.results.length; i++) {
-        finalText += event.results[i][0].transcript;
-      }
-      setTranscript(finalText);
-    };
-
-    recognition.onerror = (event: SpeechRecogErrorEvent) => {
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
       setIsRecording(false);
-      if (event.error === 'not-allowed') {
-        setErrorMsg('Microphone access was denied. You can type your description instead.');
+      setErrorMsg('Microphone is not supported in this browser environment. You may type directly.');
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      let chosenMime = '';
+      if (typeof MediaRecorder !== 'undefined') {
+        const candidateTypes = [
+          'audio/webm;codecs=opus',
+          'audio/webm',
+          'audio/mp4',
+          'audio/aac',
+        ];
+        for (const t of candidateTypes) {
+          if (MediaRecorder.isTypeSupported(t)) {
+            chosenMime = t;
+            break;
+          }
+        }
       }
-    };
 
-    recognition.onend = () => {
+      const mediaRecorder = chosenMime
+        ? new MediaRecorder(stream, { mimeType: chosenMime })
+        : new MediaRecorder(stream);
+
+      const effectiveMime = mediaRecorder.mimeType || chosenMime || 'audio/webm';
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          audioChunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        setIsRecording(false);
+        setIsTranscribing(true);
+        stream.getTracks().forEach((track) => track.stop());
+
+        const audioBlob = new Blob(audioChunksRef.current, { type: effectiveMime });
+        if (audioBlob.size < 500) {
+          setIsTranscribing(false);
+          setErrorMsg('Recording was too short. Speak into your microphone and press Stop when finished.');
+          return;
+        }
+
+        try {
+          const isAppleAudio = effectiveMime.includes('mp4') || effectiveMime.includes('aac');
+          const ext = isAppleAudio ? 'm4a' : 'webm';
+          const formData = new FormData();
+          formData.append('file', audioBlob, `artisan-recording.${ext}`);
+          formData.append('model', 'whisper-large-v3-turbo');
+
+          let resp: Response | null = null;
+
+          // 1. Try serverless backend proxy
+          try {
+            resp = await fetch('/api/transcribe', {
+              method: 'POST',
+              body: formData,
+            });
+          } catch {
+            // network/proxy fallback
+          }
+
+          // 2. Fallback to direct client API if backend proxy fails or returned error
+          if ((!resp || !resp.ok) && GROQ_API_KEY) {
+            resp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${GROQ_API_KEY}`,
+              },
+              body: formData,
+            });
+          }
+
+          if (!resp || !resp.ok) {
+            const errBody = resp ? await resp.text() : 'No response';
+            console.warn('Groq Whisper error response:', resp?.status, errBody);
+            throw new Error(`Whisper transcription failed`);
+          }
+
+          const data = (await resp.json()) as { text?: string };
+          const spokenText = (data.text || '').trim();
+          if (spokenText) {
+            setTranscript(spokenText);
+            setErrorMsg(null);
+          } else {
+            setErrorMsg('No speech detected in audio. Please speak clearly or load sample voice.');
+          }
+        } catch (err) {
+          console.warn('Whisper API call error:', err);
+          setErrorMsg('Could not transcribe audio. Check your connection or load a sample voice.');
+        } finally {
+          setIsTranscribing(false);
+        }
+      };
+
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+    } catch (err) {
+      console.warn('Microphone permission error:', err);
       setIsRecording(false);
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-  }, [selectedDialect]);
+      setErrorMsg('Microphone access was denied. Please allow microphone permissions or type directly.');
+    }
+  }, [stopAudioPlayback]);
 
   const stopRecording = useCallback(() => {
-    recognitionRef.current?.stop();
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
     setIsRecording(false);
   }, []);
 
@@ -412,8 +494,7 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
                     type="button"
                     onClick={() => {
                       setSelectedDialect(preset);
-                      setTranscript('');
-                      setErrorMsg(null);
+                      stopAudioPlayback();
                     }}
                     className={`h-9 px-3 rounded-[6px] text-xs font-body transition-colors whitespace-nowrap cursor-pointer ${
                       selectedDialect.id === preset.id
@@ -432,42 +513,105 @@ export const VoiceStudioModal: React.FC<VoiceStudioModalProps> = ({
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs text-ink-soft">
                   {isRecording
-                    ? 'Listening... speak clearly into your microphone.'
-                    : transcript
-                      ? 'Transcript captured. Edit or re-record below.'
-                      : 'Press Record to speak, or type directly.'}
+                    ? `Listening to ${selectedDialect.name}... speak into your microphone, then click Stop.`
+                    : isTranscribing
+                      ? `Transcribing your voice with Groq Whisper AI (whisper-large-v3-turbo)...`
+                      : isPlayingAudio
+                        ? `Playing ${selectedDialect.name} audio narrative...`
+                        : transcript
+                          ? 'Real voice transcribed. Edit text if needed, then generate listing.'
+                          : `Press Record to speak in ${selectedDialect.name.split(' ')[0]}, or click "Load Sample Voice".`}
                 </p>
-                {speechSupported && (
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
+                    disabled={isTranscribing}
                     onClick={isRecording ? stopRecording : startRecording}
                     className={`h-10 px-4 rounded-[6px] text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer shrink-0 ${
                       isRecording
                         ? 'bg-madder-dark text-bone animate-pulse'
-                        : 'bg-madder hover:bg-madder-dark text-bone'
+                        : isTranscribing
+                          ? 'bg-clay text-ink-soft cursor-not-allowed opacity-70'
+                          : 'bg-madder hover:bg-madder-dark text-bone'
                     }`}
                   >
-                    {isRecording ? <MicOff size={15} /> : <Mic size={15} />}
-                    <span>{isRecording ? 'Stop' : 'Record'}</span>
+                    {isRecording ? <MicOff size={15} /> : isTranscribing ? <Loader2 size={15} className="animate-spin" /> : <Mic size={15} />}
+                    <span>{isRecording ? 'Stop' : isTranscribing ? 'Transcribing...' : 'Record'}</span>
                   </button>
-                )}
+                </div>
               </div>
 
-              {/* Waveform Canvas */}
-              {speechSupported && (
-                <div className="w-full h-10 rounded-[4px] bg-parchment border border-clay/50 p-1 overflow-hidden">
-                  <canvas ref={canvasRef} width={640} height={40} className="w-full h-full" />
+              {/* Status Banner when transcribing */}
+              {isTranscribing && (
+                <div className="flex items-center gap-2 p-2.5 rounded-[4px] bg-madder/10 border border-madder/30 text-madder text-xs font-medium animate-pulse">
+                  <Loader2 size={14} className="animate-spin shrink-0" />
+                  <span>Processing authentic speech with Groq Whisper AI model...</span>
                 </div>
               )}
+
+              {/* Error banner */}
+              {errorMsg && (
+                <div className="flex items-center gap-2 p-2.5 rounded-[4px] bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-300 text-xs">
+                  <AlertCircle size={14} className="shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+
+              {/* Waveform Canvas */}
+              <div className="w-full h-10 rounded-[4px] bg-parchment border border-clay/50 p-1 overflow-hidden">
+                <canvas ref={canvasRef} width={640} height={40} className="w-full h-full" />
+              </div>
 
               {/* Textarea */}
               <textarea
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
-                placeholder="Describe the craft, materials, hours spent on the loom, and techniques..."
+                placeholder={`Describe the craft in ${selectedDialect.name}, materials, hours spent, or click "Load Sample Voice"...`}
                 rows={3}
                 className="w-full bg-parchment border border-clay rounded-[6px] p-3 text-ink text-sm placeholder:text-ink-soft/60 resize-none focus:outline-none focus:border-madder"
               />
+
+              {/* Sample Voice & Audio Playback Tools */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-clay/40">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => loadPresetSample(selectedDialect)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] bg-madder/10 hover:bg-madder/20 text-madder text-xs font-medium transition-colors cursor-pointer"
+                    title={`Load verified ${selectedDialect.name} voice transcript & photo`}
+                  >
+                    <Sparkles size={13} />
+                    <span>Load {selectedDialect.name.split(' ')[0]} Sample Voice</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={isPlayingAudio ? stopAudioPlayback : playVoiceSample}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] border text-xs font-medium transition-colors cursor-pointer ${
+                      isPlayingAudio
+                        ? 'bg-madder text-bone border-madder'
+                        : 'bg-parchment hover:bg-clay/20 border-clay text-ink'
+                    }`}
+                    title="Listen to the voice audio spoken aloud"
+                  >
+                    {isPlayingAudio ? <VolumeX size={13} /> : <Volume2 size={13} />}
+                    <span>{isPlayingAudio ? 'Stop Audio' : 'Listen Voice (ଭଏସ୍ ଶୁଣନ୍ତୁ)'}</span>
+                  </button>
+                </div>
+
+                {transcript.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTranscript('');
+                      stopAudioPlayback();
+                    }}
+                    className="text-xs text-ink-soft hover:text-madder underline cursor-pointer"
+                  >
+                    Clear text
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Photo Attachment */}

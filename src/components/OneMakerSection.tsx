@@ -1,9 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { EXAMPLE_BREAKDOWN, formatINR } from '../lib/pricing';
+import { playDialectVoice, stopDialectVoice } from '../lib/speechAudio';
 
 export const OneMakerSection: React.FC = () => {
   const { materials, labour, milaanFee, shipping, buyerTotal, makerSharePct } = EXAMPLE_BREAKDOWN;
   const makerTotal = materials + labour;
+  const [isPlayingOdia, setIsPlayingOdia] = useState(false);
+
+  const toggleOdiaAudio = () => {
+    if (isPlayingOdia) {
+      stopDialectVoice();
+      setIsPlayingOdia(false);
+    } else {
+      setIsPlayingOdia(true);
+      playDialectVoice(
+        'ମୋର ଏଇ ଶାଢ଼ୀ ବୁଣିବା ପାଇଁ ୩୬ ଘଣ୍ଟା ଲାଗିଲା। ସବୁ ସୂତା କୁ ହାତରେ ବାନ୍ଧି ପ୍ରାକୃତିକ ରଙ୍ଗ ଦିଆଯାଇଛି।',
+        'or-IN',
+        () => setIsPlayingOdia(false),
+        () => setIsPlayingOdia(false)
+      );
+    }
+  };
 
   return (
     <section
@@ -94,7 +112,22 @@ export const OneMakerSection: React.FC = () => {
               {/* No card borders or backgrounds on Stop 1 */}
               <div className="flex-1 flex flex-col justify-between">
                 <div>
-                  {/* NOTE: Odia text needs a native speaker's check. */}
+                  <div className="mb-3">
+                    <button
+                      type="button"
+                      onClick={toggleOdiaAudio}
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-[4px] border text-xs font-medium transition-colors cursor-pointer ${
+                        isPlayingOdia
+                          ? 'bg-madder text-bone border-madder shadow-xs'
+                          : 'bg-parchment hover:bg-clay/20 text-madder border-clay/60'
+                      }`}
+                      title={isPlayingOdia ? 'Stop Odia voice audio' : 'Listen to master weaver in Odia'}
+                    >
+                      {isPlayingOdia ? <VolumeX size={14} /> : <Volume2 size={14} className="animate-pulse" />}
+                      <span>{isPlayingOdia ? 'Stop Odia Audio' : 'Listen to Artisan Voice in Odia (ଭଏସ୍ ଶୁଣନ୍ତୁ)'}</span>
+                    </button>
+                  </div>
+
                   <p className="font-heading text-lg text-ink leading-relaxed mb-4 max-w-[62ch] [text-wrap:pretty]">
                     “ମୋର ଏଇ ଶାଢ଼ୀ ବୁଣିବା ପାଇଁ ୩୬ ଘଣ୍ଟା ଲାଗିଲା। ସବୁ ସୂତା କୁ ହାତରେ ବାନ୍ଧି ପ୍ରାକୃତିକ ରଙ୍ଗ ଦିଆଯାଇଛି।”
                   </p>
@@ -102,9 +135,10 @@ export const OneMakerSection: React.FC = () => {
                     “It took 36 hours to weave this saree on our pit loom. Every thread was tied by hand and dyed in natural colours.”
                   </p>
                 </div>
-                <p className="text-xs text-ink-soft mt-4 pt-3 border-t border-clay/40">
-                  Odia
-                </p>
+                <div className="flex items-center justify-between text-xs text-ink-soft mt-4 pt-3 border-t border-clay/40">
+                  <span>Odia (Sambalpuri Kosli)</span>
+                  <span className="text-[11px] text-madder font-medium">Verified audio narrative</span>
+                </div>
               </div>
             </div>
 

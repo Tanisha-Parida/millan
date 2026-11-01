@@ -7,6 +7,7 @@ import { CategoryGrid, StateSelector } from './vault/VaultFilters';
 import { VaultResults } from './vault/VaultResults';
 import { CraftDetailModal } from './vault/CraftDetailModal';
 import KanthaStitch from './ornament/KanthaStitch';
+import { playDialectVoice, stopDialectVoice } from '../lib/speechAudio';
 
 export type { CraftItem } from '../types/craft';
 
@@ -81,8 +82,18 @@ export const ArtisanVaultGrid: React.FC<ArtisanVaultGridProps> = ({
   const handleToggleAudio = (item: CraftItem) => {
     if (playingAudioId === item.id) {
       setPlayingAudioId(null);
+      stopDialectVoice();
     } else {
       setPlayingAudioId(item.id);
+      const spokenText =
+        item.audioNarrative.vernacularQuote || item.audioNarrative.englishTranslation;
+      const lang = item.state === 'Odisha' ? 'or-IN' : 'hi-IN';
+      playDialectVoice(
+        spokenText,
+        lang,
+        () => setPlayingAudioId(null),
+        () => setPlayingAudioId(null)
+      );
     }
   };
 
